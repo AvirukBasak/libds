@@ -3,139 +3,230 @@
 #include <stdlib.h>
 
 #undef new
-#undef delete
-
 /**
  * new function: returns a pointer to a struct type passed by allocating
  * memory using calloc
  */
-#define new(struct_t) ({                                                             \
-    struct struct_t *tmp = calloc(1, sizeof(struct struct_t));                       \
-    if (!tmp) abort();                                                               \
-    tmp;                                                                             \
+#define new(struct_t) ({                                                          \
+    calloc(1, sizeof(struct struct_t));                                           \
 })
 
+#undef delete
 /**
  * delete function: frees pointer and sets it to null
  */
-#define delete(ptr) ({                                                               \
-    if (ptr) {                                                                       \
-        free(ptr);                                                                   \
-        ptr = NULL;                                                                  \
-    }                                                                                \
+#define delete(ptr) ({                                                            \
+    if (ptr) {                                                                    \
+        free(ptr);                                                                \
+        ptr = NULL;                                                               \
+    }                                                                             \
 })
 
-#define Stack(vtype) stack_##vtype
-#define StackFunc(vtype, func, ...) stack_##vtype##_##func(__VA_ARGS__)
+#define Stack(vtype) Stack_##vtype
+#define StackFn(vtype, func) Stack_##vtype##_##func
+
+#undef STACK_NOT_NULLPTR
+/**
+ * Return ptr if not null else abort
+ * @param ptr Pointer to object
+ * @param fn Name of caller function
+ * @return ptr If not null
+ */
+#define STACK_NOT_NULLPTR(ptr, fn) ({                                             \
+    if (!ptr) {                                                                   \
+        fprintf("stack: %s(): null pointer\n", fn);                               \
+        abort();                                                                  \
+    }                                                                             \
+    ptr;                                                                          \
+})
+
+#undef STACK_FOREACH
+/**
+ * Iterate through the stack
+ * @param st The stack
+ * @param action{Stack(vtype) st, int i, vtype *value} A code block
+ */
+#define STACK_FOREACH(st, action) ({                                              \
+    STACK_NOT_NULLPTR(ptr, "FOREACH");                                            \
+    for (int _i = 0; _i < st->length; _i++) {                                     \
+        typeof(st->v) const value = &(st->v[_i]);                                 \
+        const int i = _i;                                                         \
+        const int _i = 0;                                                         \
+        action;                                                                   \
+    }                                                                             \
+})
+
+#undef STACK_RFOREACH
+/**
+ * Iterate in reverse through the stack
+ * @param st The stack
+ * @param action{Stack(vtype) st, int i, vtype *value} A code block
+ */
+#define STACK_RFOREACH(st, action) ({                                             \
+    STACK_NOT_NULLPTR(ptr, "RFOREACH");                                           \
+    for (int _i = st->length -1; _i >= 0 ; _i--) {                                \
+        typeof(st->v) const value = &(st->v[_i]);                                 \
+        const int i = _i;                                                         \
+        const int _i = 0;                                                         \
+        action;                                                                   \
+    }                                                                             \
+})
 
 /**
- * Generates function prototype definitions and typedefs for the stack
- * vtype should be a primary datatype or typdefed (aliased) pointer
- * format: StackDeclarePrototypes(vtype)
+ * Generates function prototype definitions and typedefs for the Stack
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct
+ * format: STACK_DECLARE(vtype)
+ * @param vtype
  */
-#define StackDeclarePrototypes(vtype)                                                \
-                                                                                     \
-typedef struct stack_##vtype##_node *stack_##vtype##_node;                           \
-                                                                                     \
-typedef struct stack_##vtype {                                                       \
-    stack_##vtype##_node top_ptr;                                                    \
-    vtype *top;                                                                      \
-} *stack_##vtype;                                                                    \
-                                                                                     \
-stack_##vtype stack_##vtype##_newstack();                                            \
-bool stack_##vtype##_isEmpty(stack_##vtype st);                                      \
-vtype stack_##vtype##_peek(stack_##vtype st);                                        \
-bool stack_##vtype##_push(stack_##vtype st, vtype val);                              \
-vtype stack_##vtype##_pop(stack_##vtype st);                                         \
-void stack_##vtype##_print(stack_##vtype st);                                        \
-void stack_##vtype##_free(stack_##vtype *st_ptr);
+#define STACK_DECLARE(vtype)                                                      \
+                                                                                  \
+typedef struct Stack(vtype) {                                                     \
+    vtype *v;                                                                     \
+    size_t length;                                                                \
+    size_t capacity;                                                              \
+    void          (*free)    (Stack(vtype) *st_ptr);                              \
+    size_t        (*length)  (Stack(vtype) st);                                   \
+    bool          (*isempty) (Stack(vtype) st);                                   \
+    vtype*        (*begin)   (Stack(vtype) st);                                   \
+    vtype*        (*rbegin)  (Stack(vtype) st);                                   \
+    vtype*        (*next)    (Stack(vtype) st, vtype *curr);                      \
+    vtype*        (*rnext)   (Stack(vtype) st, vtype *curr);                      \
+    bool          (*push)    (Stack(vtype) st, vtype val);                        \
+    vtype         (*top)     (Stack(vtype) st);                                   \
+    vtype         (*pop)     (Stack(vtype) st);                                   \
+    Stack(vtype)  (*clone)   (Stack(vtype) st);                                   \
+} *Stack(vtype);                                                                  \
+                                                                                  \
+Stack(vtype)  StackFn(vtype, new)();                                              \
+void          StackFn(vtype, free)    (Stack(vtype) *st_ptr);                     \
+size_t        StackFn(vtype, length)  (Stack(vtype) st);                          \
+bool          StackFn(vtype, isempty) (Stack(vtype) st);                          \
+vtype*        StackFn(vtype, begin)   (Stack(vtype) st);                          \
+vtype*        StackFn(vtype, rbegin)  (Stack(vtype) st);                          \
+vtype*        StackFn(vtype, next)    (Stack(vtype) st, vtype *curr);             \
+vtype*        StackFn(vtype, rnext)   (Stack(vtype) st, vtype *curr);             \
+bool          StackFn(vtype, push)    (Stack(vtype) st, vtype val);               \
+vtype         StackFn(vtype, top)     (Stack(vtype) st);                          \
+vtype         StackFn(vtype, pop)     (Stack(vtype) st);                          \
+Stack(vtype)  StackFn(vtype, clone)   (Stack(vtype) st);
 
 /**
- * Defines the chosen stack from template: generates the necessary function definitions
- * vtype should be a primary datatype or typdefed (aliased) pointer
- * format: StackDefine(vtype, func_print(const value))
- * NOTE: requires StackDeclarePrototypes(vtype)
+ * Defines the chosen Stack from template: generates the necessary function definitions
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct
+ * Format: STACK_DEFINE(vtype)
+ * Note: requires STACK_DECLARE(vtype)
+ * @param vtype
  */
-#define StackDefine(vtype, func_print)                                               \
-                                                                                     \
-struct stack_##vtype##_node {                                                        \
-    vtype val;                                                                       \
-    stack_##vtype##_node next;                                                       \
-};                                                                                   \
-                                                                                     \
-stack_##vtype stack_##vtype##_newstack()                                             \
-{                                                                                    \
-    stack_##vtype st = new(stack_##vtype);                                           \
-    st->top_ptr = NULL;                                                              \
-    st->top = NULL;                                                                  \
-    return st;                                                                       \
-}                                                                                    \
-                                                                                     \
-bool stack_##vtype##_isEmpty(stack_##vtype st)                                       \
-{                                                                                    \
-    if (!st) abort();                                                                \
-    return !(st->top_ptr);                                                           \
-}                                                                                    \
-                                                                                     \
-vtype stack_##vtype##_peek(stack_##vtype st)                                         \
-{                                                                                    \
-    if (!st) abort();                                                                \
-    if (st->top_ptr) return st->top_ptr->val;                                        \
-    else return (vtype) 0;                                                           \
-}                                                                                    \
-                                                                                     \
-bool stack_##vtype##_push(stack_##vtype st, vtype val)                               \
-{                                                                                    \
-    if (!st) abort();                                                                \
-    stack_##vtype##_node node = new(stack_##vtype##_node);                           \
-    node->val = val;                                                                 \
-    node->next = st->top_ptr;                                                        \
-    st->top_ptr = node;                                                              \
-    st->top = &st->top_ptr->val;                                                     \
-    return true;                                                                     \
-}                                                                                    \
-                                                                                     \
-vtype stack_##vtype##_pop(stack_##vtype st)                                          \
-{                                                                                    \
-     if (!st) abort();                                                               \
-     if (!st->top_ptr) return (vtype) 0;                                             \
-     stack_##vtype##_node tmp = st->top_ptr;                                         \
-     st->top_ptr = tmp->next;                                                        \
-     st->top = &st->top_ptr->val;                                                    \
-     vtype retv = tmp->val;                                                          \
-     free(tmp);                                                                      \
-     return retv;                                                                    \
-}                                                                                    \
-                                                                                     \
-void stack_##vtype##_print(stack_##vtype st)                                         \
-{                                                                                    \
-    if (!st) abort();                                                                \
-    stack_##vtype##_node p = st->top_ptr;                                            \
-    if (!p) { printf("{ }\n"); return; }                                             \
-    printf("{\n");                                                                   \
-    while (p) {                                                                      \
-        const vtype value = p->val;                                                  \
-        printf("    ");                                                              \
-        {                                                                            \
-            const stack_##vtype st = NULL;                                           \
-            const stack_##vtype##_node p = NULL;                                     \
-            (st, p);                                                                 \
-            func_print;                                                              \
-        }                                                                            \
-        printf("\n");                                                                \
-        p = p->next;                                                                 \
-    }                                                                                \
-    printf("}\n");                                                                   \
-}                                                                                    \
-                                                                                     \
-void stack_##vtype##_free(stack_##vtype *st_ptr)                                     \
-{                                                                                    \
-    if (!st_ptr || !*st_ptr) return;                                                 \
-    stack_##vtype##_node p = (*st_ptr)->top_ptr;                                     \
-    while (p) {                                                                      \
-        free(p);                                                                     \
-        p = p->next;                                                                 \
-    }                                                                                \
-    free(*st_ptr);                                                                   \
-    *st_ptr = NULL;                                                                  \
+#define STACK_DEFINE(vtype)                                                       \
+                                                                                  \
+Stack(vtype) StackFn(vtype, new)()                                                \
+{                                                                                 \
+    Stack(vtype) st = STACK_NOT_NULLPTR(new(Stack(vtype)), "new");                \
+    st->v = NULL;                                                                 \
+    st->length = 0;                                                               \
+    st->capacity = 0;                                                             \
+    st->free    = StackFn(vtype, free);                                           \
+    st->length  = StackFn(vtype, length);                                         \
+    st->isempty = StackFn(vtype, isempty);                                        \
+    st->begin   = StackFn(vtype, begin);                                          \
+    st->rbegin  = StackFn(vtype, rbegin);                                         \
+    st->next    = StackFn(vtype, next);                                           \
+    st->rnext   = StackFn(vtype, rnext);                                          \
+    st->push    = StackFn(vtype, push);                                           \
+    st->top     = StackFn(vtype, top);                                            \
+    st->pop     = StackFn(vtype, pop);                                            \
+    st->clone   = StackFn(vtype, clone);                                          \
+    return st;                                                                    \
+}                                                                                 \
+                                                                                  \
+size_t StackFn(vtype, length)(Stack(vtype) st)                                    \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "length");                                              \
+    return st->length;                                                            \
+}                                                                                 \
+                                                                                  \
+bool StackFn(vtype, isempty)(Stack(vtype) st)                                     \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "isempty");                                             \
+    return !(st->length);                                                         \
+}                                                                                 \
+                                                                                  \
+vtype *StackFn(vtype, begin)(Stack(vtype) st)                                     \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "begin");                                               \
+    if (0 >= st->length) {                                                        \
+        fprintf(stderr, "stack: begin(): stack empty\n");                         \
+        abort();                                                                  \
+    }                                                                             \
+    return &(st->v[0]);                                                           \
+}                                                                                 \
+                                                                                  \
+vtype *StackFn(vtype, rbegin)(Stack(vtype) st)                                    \
+{                                                                                 \
+    int index = st->length -1;                                                    \
+    STACK_NOT_NULLPTR(st, "rbegin");                                              \
+    if (index < 0) {                                                              \
+        fprintf(stderr, "stack: rbegin(): index out of bounds: %d\n", index);     \
+        abort();                                                                  \
+    }                                                                             \
+    return &(st->v[index]);                                                       \
+}                                                                                 \
+                                                                                  \
+vtype *StackFn(vtype, next)(Stack(vtype) st, vtype *curr)                         \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "next");                                                \
+    if (!curr) return st->begin(st);                                              \
+    curr++;                                                                       \
+    if (st->begin(st) < curr && curr <= st->rbegin(st))                           \
+        return curr;                                                              \
+    return NULL;                                                                  \
+}                                                                                 \
+vtype *StackFn(vtype, rnext)(Stack(vtype) st, vtype *curr)                        \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "rnext");                                               \
+    if (!curr) return st->rbegin(st);                                             \
+    curr--;                                                                       \
+    if (st->begin(st) <= curr && curr < st->rbegin(st))                           \
+        return curr;                                                              \
+    return NULL;                                                                  \
+}                                                                                 \
+                                                                                  \
+bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                             \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "push");                                                \
+    if (st->length >= st->capacity) {                                             \
+        st->capacity = (int) (2 * st->capacity) +1;                               \
+        st->v = realloc(st->v, sizeof(vtype) * st->capacity);                     \
+    }                                                                             \
+    st->v[st->length++] = val;                                                    \
+    return true;                                                                  \
+}                                                                                 \
+                                                                                  \
+vtype StackFn(vtype, top)(Stack(vtype) st)                                        \
+{                                                                                 \
+    STACK_NOT_NULLPTR(st, "top");                                                 \
+    return *st->rbegin(st);                                                       \
+}                                                                                 \
+                                                                                  \
+vtype StackFn(vtype, pop)(Stack(vtype) st)                                        \
+{                                                                                 \
+     STACK_NOT_NULLPTR(st, "pop");                                                \
+     vtype retv = *st->rbegin(st);                                                \
+     st->length--;                                                                \
+     return retv;                                                                 \
+}                                                                                 \
+                                                                                  \
+Stack(vtype) StackFn(vtype, clone)(Stack(vtype) st)                               \
+{                                                                                 \
+     STACK_NOT_NULLPTR(st, "clone");                                              \
+     Stack(vtype) stk = StackFn(vtype, new)();                                    \
+     STACK_FOREACH(st, stk->push(stk, *value));                                   \
+     return stk;                                                                  \
+}                                                                                 \
+                                                                                  \
+void StackFn(vtype, free)(Stack(vtype) *st_ptr)                                   \
+{                                                                                 \
+    if (!st_ptr || !*st_ptr) return;                                              \
+    free(*st_ptr);                                                                \
+    *st_ptr = NULL;                                                               \
 }
