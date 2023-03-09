@@ -49,9 +49,9 @@
 #define VECTOR_FOREACH(vc, action) ({                                             \
     VECTOR_NOT_NULLPTR(vc, "FOREACH");                                            \
     for (int _i = 0; _i < vc->len; _i++) {                                        \
-        typeof(vc->v) const value = &(vc->v[_i]);                                 \
-        const int i = _i;                                                         \
-        const int _i = 0;                                                         \
+        typeof(vc->v) const value = &(vc->v[_i]); value;                          \
+        const int i = _i; i;                                                      \
+        const int _i = 0; _i;                                                     \
         action;                                                                   \
     }                                                                             \
 })
@@ -65,9 +65,9 @@
 #define VECTOR_RFOREACH(vc, action) ({                                            \
     VECTOR_NOT_NULLPTR(vc, "RFOREACH");                                           \
     for (int _i = vc->len -1; _i >= 0 ; _i--) {                                   \
-        typeof(vc->v) const value = &(vc->v[_i]);                                 \
-        const int i = _i;                                                         \
-        const int _i = 0;                                                         \
+        typeof(vc->v) const value = &(vc->v[_i]); value;                          \
+        const int i = _i; i;                                                      \
+        const int _i = 0; _i;                                                     \
         action;                                                                   \
     }                                                                             \
 })

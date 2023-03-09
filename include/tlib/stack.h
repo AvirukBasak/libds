@@ -49,9 +49,9 @@
 #define STACK_FOREACH(st, action) ({                                              \
     STACK_NOT_NULLPTR(st, "FOREACH");                                             \
     for (int _i = 0; _i < st->len; _i++) {                                        \
-        typeof(st->v) const value = &(st->v[_i]);                                 \
-        const int i = _i;                                                         \
-        const int _i = 0;                                                         \
+        typeof(st->v) const value = &(st->v[_i]); value;                          \
+        const int i = _i; i;                                                      \
+        const int _i = 0; _i;                                                     \
         action;                                                                   \
     }                                                                             \
 })
@@ -65,9 +65,9 @@
 #define STACK_RFOREACH(st, action) ({                                             \
     STACK_NOT_NULLPTR(st, "RFOREACH");                                            \
     for (int _i = st->len -1; _i >= 0 ; _i--) {                                   \
-        typeof(st->v) const value = &(st->v[_i]);                                 \
-        const int i = _i;                                                         \
-        const int _i = 0;                                                         \
+        typeof(st->v) const value = &(st->v[_i]); value;                          \
+        const int i = _i; i;                                                      \
+        const int _i = 0; _i;                                                     \
         action;                                                                   \
     }                                                                             \
 })
