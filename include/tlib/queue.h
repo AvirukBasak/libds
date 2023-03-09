@@ -48,7 +48,7 @@
  */
 #define QUEUE_FOREACH(qu, action) ({                                              \
     QUEUE_NOT_NULLPTR(qu, "FOREACH");                                             \
-    for (int _i = qu->fnt; _i < qu->len; _i++) {                                  \
+    for (int _i = qu->fnt; _i < qu->rer; _i++) {                                  \
         typeof(qu->v) const value = &(qu->v[_i]); value;                          \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
@@ -64,7 +64,7 @@
  */
 #define QUEUE_RFOREACH(qu, action) ({                                             \
     QUEUE_NOT_NULLPTR(qu, "RFOREACH");                                            \
-    for (int _i = qu->len -1; _i >= qu->fnt ; _i--) {                             \
+    for (int _i = qu->rer -1; _i >= qu->fnt ; _i--) {                             \
         typeof(qu->v) const value = &(qu->v[_i]); value;                          \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
@@ -84,11 +84,13 @@ typedef struct Queue(vtype) *Queue(vtype);                                      
                                                                                   \
 struct Queue(vtype) {                                                             \
     vtype *v;                                                                     \
-    size_t len;                                                                   \
+    size_t fnt;                                                                   \
+    size_t rer;                                                                   \
     size_t cap;                                                                   \
     void          (*free)    (Queue(vtype) *qu_ptr);                              \
     size_t        (*length)  (Queue(vtype) qu);                                   \
     bool          (*isempty) (Queue(vtype) qu);                                   \
+    vtype*        (*getref)  (Queue(vtype) qu, int index);                        \
     vtype*        (*begin)   (Queue(vtype) qu);                                   \
     vtype*        (*rbegin)  (Queue(vtype) qu);                                   \
     vtype*        (*next)    (Queue(vtype) qu, vtype *curr);                      \
@@ -103,6 +105,7 @@ Queue(vtype)  QueueFn(vtype, new)();                                            
 void          QueueFn(vtype, free)    (Queue(vtype) *qu_ptr);                     \
 size_t        QueueFn(vtype, length)  (Queue(vtype) qu);                          \
 bool          QueueFn(vtype, isempty) (Queue(vtype) qu);                          \
+vtype*        QueueFn(vtype, getref)  (Queue(vtype) qu, int index);               \
 vtype*        QueueFn(vtype, begin)   (Queue(vtype) qu);                          \
 vtype*        QueueFn(vtype, rbegin)  (Queue(vtype) qu);                          \
 vtype*        QueueFn(vtype, next)    (Queue(vtype) qu, vtype *curr);             \
@@ -125,11 +128,13 @@ Queue(vtype) QueueFn(vtype, new)()                                              
 {                                                                                 \
     Queue(vtype) qu = QUEUE_NOT_NULLPTR(new(Queue(vtype)), "new");                \
     qu->v = NULL;                                                                 \
-    qu->len = 0;                                                                  \
+    qu->fnt = 0;                                                                  \
+    qu->rer = 0;                                                                  \
     qu->cap = 0;                                                                  \
     qu->free    = QueueFn(vtype, free);                                           \
     qu->length  = QueueFn(vtype, length);                                         \
     qu->isempty = QueueFn(vtype, isempty);                                        \
+    qu->getref  = QueueFn(vtype, getref);                                         \
     qu->begin   = QueueFn(vtype, begin);                                          \
     qu->rbegin  = QueueFn(vtype, rbegin);                                         \
     qu->next    = QueueFn(vtype, next);                                           \
@@ -144,19 +149,29 @@ Queue(vtype) QueueFn(vtype, new)()                                              
 size_t QueueFn(vtype, length)(Queue(vtype) qu)                                    \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "length");                                              \
-    return qu->len;                                                               \
+    return qu->rer - qu->fnt;                                                     \
 }                                                                                 \
                                                                                   \
 bool QueueFn(vtype, isempty)(Queue(vtype) qu)                                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "isempty");                                             \
-    return !(qu->len);                                                            \
+    return qu->rer - qu->fnt <= 0;                                                \
+}                                                                                 \
+                                                                                  \
+vtype *QueueFn(vtype, getref)(Queue(vtype) qu, int index)                         \
+{                                                                                 \
+    QUEUE_NOT_NULLPTR(qu, "getref");                                              \
+    if (index < qu->fnt || index >= qu->rer) {                                    \
+        fprintf(stderr, "queue: getref(): index out of bounds: %d\n", index);     \
+        abort();                                                                  \
+    }                                                                             \
+    return &(qu->v[index]);                                                       \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, begin)(Queue(vtype) qu)                                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "begin");                                               \
-    if (qu->fnt >= qu->len) {                                                     \
+    if (qu->fnt >= qu->rer) {                                                     \
         fprintf(stderr, "queue: begin(): queue empty\n");                         \
         abort();                                                                  \
     }                                                                             \
@@ -165,7 +180,7 @@ vtype *QueueFn(vtype, begin)(Queue(vtype) qu)                                   
                                                                                   \
 vtype *QueueFn(vtype, rbegin)(Queue(vtype) qu)                                    \
 {                                                                                 \
-    int index = qu->len -1;                                                       \
+    int index = qu->rer -1;                                                       \
     QUEUE_NOT_NULLPTR(qu, "rbegin");                                              \
     if (index < qu->fnt) {                                                        \
         fprintf(stderr, "queue: rbegin(): queue empty\n");                        \
@@ -196,11 +211,11 @@ vtype *QueueFn(vtype, rnext)(Queue(vtype) qu, vtype *curr)                      
 bool QueueFn(vtype, push)(Queue(vtype) qu, vtype val)                             \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "push");                                                \
-    if (qu->len >= qu->cap) {                                                     \
+    if (qu->rer >= qu->cap) {                                                     \
         qu->cap = (int) (2 * qu->cap) +1;                                         \
         qu->v = realloc(qu->v, sizeof(vtype) * qu->cap);                          \
     }                                                                             \
-    qu->v[qu->len++] = val;                                                       \
+    qu->v[qu->rer++] = val;                                                       \
     return true;                                                                  \
 }                                                                                 \
                                                                                   \
@@ -215,6 +230,7 @@ vtype QueueFn(vtype, pop)(Queue(vtype) qu)                                      
      QUEUE_NOT_NULLPTR(qu, "pop");                                                \
      vtype retv = *qu->getref(qu, qu->fnt);                                       \
      qu->fnt++;                                                                   \
+     if (qu->isempty(qu)) qu->rer = qu->fnt = 0;                                  \
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
