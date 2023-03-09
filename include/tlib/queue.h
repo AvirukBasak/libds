@@ -73,9 +73,9 @@
 })
 
 /**
- * Generates function prototype definitions and typedefs for the Queue
- * vtype should be a primary datatype or typdefed (aliased) pointer/struct
- * format: QUEUE_DECLARE(vtype)
+ * Generates function prototype definitions and typedefs for the Queue.
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct.
+ * Format: QUEUE_DECLARE(vtype)
  * @param vtype
  */
 #define QUEUE_DECLARE(vtype)                                                      \
@@ -116,8 +116,8 @@ vtype         QueueFn(vtype, pop)     (Queue(vtype) qu);                        
 Queue(vtype)  QueueFn(vtype, clone)   (Queue(vtype) qu);
 
 /**
- * Defines the chosen Queue from template: generates the necessary function definitions
- * vtype should be a primary datatype or typdefed (aliased) pointer/struct
+ * Defines the chosen Queue from template: generates the necessary function definitions.
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct.
  * Format: QUEUE_DEFINE(vtype)
  * Note: requires QUEUE_DECLARE(vtype)
  * @param vtype

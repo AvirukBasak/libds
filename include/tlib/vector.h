@@ -73,9 +73,9 @@
 })
 
 /**
- * Generates function prototype definitions and typedefs for the Vector
- * vtype should be a primary datatype or typdefed (aliased) pointer/struct
- * format: VECTOR_DECLARE(vtype)
+ * Generates function prototype definitions and typedefs for the Vector.
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct.
+ * Format: VECTOR_DECLARE(vtype)
  * @param vtype
  */
 #define VECTOR_DECLARE(vtype)                                                     \

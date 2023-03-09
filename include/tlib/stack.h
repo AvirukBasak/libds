@@ -73,9 +73,9 @@
 })
 
 /**
- * Generates function prototype definitions and typedefs for the Stack
- * vtype should be a primary datatype or typdefed (aliased) pointer/struct
- * format: STACK_DECLARE(vtype)
+ * Generates function prototype definitions and typedefs for the Stack.
+ * vtype should be a primary datatype or typdefed (aliased) pointer/struct.
+ * Format: STACK_DECLARE(vtype)
  * @param vtype
  */
 #define STACK_DECLARE(vtype)                                                      \
