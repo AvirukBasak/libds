@@ -168,7 +168,7 @@ vtype *StackFn(vtype, rbegin)(Stack(vtype) st)                                  
     int index = st->len -1;                                                       \
     STACK_NOT_NULLPTR(st, "rbegin");                                              \
     if (index < 0) {                                                              \
-        fprintf(stderr, "stack: rbegin(): index out of bounds: %d\n", index);     \
+        fprintf(stderr, "stack: rbegin(): stack empty\n");                        \
         abort();                                                                  \
     }                                                                             \
     return &(st->v[index]);                                                       \

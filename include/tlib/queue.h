@@ -156,19 +156,19 @@ bool QueueFn(vtype, isempty)(Queue(vtype) qu)                                   
 vtype *QueueFn(vtype, begin)(Queue(vtype) qu)                                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "begin");                                               \
-    if (0 >= qu->len) {                                                           \
+    if (qu->fnt >= qu->len) {                                                     \
         fprintf(stderr, "queue: begin(): queue empty\n");                         \
         abort();                                                                  \
     }                                                                             \
-    return &(qu->v[0]);                                                           \
+    return &(qu->v[qu->fnt]);                                                     \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, rbegin)(Queue(vtype) qu)                                    \
 {                                                                                 \
     int index = qu->len -1;                                                       \
     QUEUE_NOT_NULLPTR(qu, "rbegin");                                              \
-    if (index < 0) {                                                              \
-        fprintf(stderr, "queue: rbegin(): index out of bounds: %d\n", index);     \
+    if (index < qu->fnt) {                                                        \
+        fprintf(stderr, "queue: rbegin(): queue empty\n");                        \
         abort();                                                                  \
     }                                                                             \
     return &(qu->v[index]);                                                       \

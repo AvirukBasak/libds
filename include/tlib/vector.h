@@ -201,7 +201,7 @@ vtype *VectorFn(vtype, rbegin)(Vector(vtype) vc)                                
     int index = vc->len -1;                                                       \
     VECTOR_NOT_NULLPTR(vc, "rbegin");                                             \
     if (index < 0) {                                                              \
-        fprintf(stderr, "vector: rbegin(): index out of bounds: %d\n", index);    \
+        fprintf(stderr, "vector: rbegin(): vector empty\n");                      \
         abort();                                                                  \
     }                                                                             \
     return &(vc->v[index]);                                                       \
