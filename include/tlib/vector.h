@@ -47,8 +47,8 @@
  * @param action{Vector(vtype) vc, int i, vtype *value} A code block
  */
 #define VECTOR_FOREACH(vc, action) ({                                             \
-    VECTOR_NOT_NULLPTR(ptr, "FOREACH");                                           \
-    for (int _i = 0; _i < vc->length; _i++) {                                     \
+    VECTOR_NOT_NULLPTR(vc, "FOREACH");                                            \
+    for (int _i = 0; _i < vc->len; _i++) {                                     \
         typeof(vc->v) const value = &(vc->v[_i]);                                 \
         const int i = _i;                                                         \
         const int _i = 0;                                                         \
@@ -63,8 +63,8 @@
  * @param action{Vector(vtype) vc, int i, vtype *value} A code block
  */
 #define VECTOR_RFOREACH(vc, action) ({                                            \
-    VECTOR_NOT_NULLPTR(ptr, "RFOREACH");                                          \
-    for (int _i = vc->length -1; _i >= 0 ; _i--) {                                \
+    VECTOR_NOT_NULLPTR(vc, "RFOREACH");                                           \
+    for (int _i = vc->len -1; _i >= 0 ; _i--) {                                \
         typeof(vc->v) const value = &(vc->v[_i]);                                 \
         const int i = _i;                                                         \
         const int _i = 0;                                                         \
@@ -80,9 +80,10 @@
  */
 #define VECTOR_DECLARE(vtype)                                                     \
                                                                                   \
+typedef struct Vector(vtype) *Vector(vtype);                                      \
 typedef int (*cmpfn_t)(vtype a, vtype b);                                         \
                                                                                   \
-typedef struct Vector(vtype) {                                                    \
+struct Vector(vtype) {                                                            \
     vtype *v;                                                                     \
     size_t length;                                                                \
     size_t capacity;                                                              \
@@ -101,7 +102,7 @@ typedef struct Vector(vtype) {                                                  
     Vector(vtype) (*clone)   (Vector(vtype) vc);                                  \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, cmpfn_t func);                    \
     Vector(vtype) (*reverse) (Vector(vtype) vc);                                  \
-} *Vector(vtype);                                                                 \
+};                                                                                \
                                                                                   \
 Vector(vtype) VectorFn(vtype, new)();                                             \
 void          VectorFn(vtype, free)    (Vector(vtype) *vc_ptr);                   \
@@ -133,8 +134,8 @@ Vector(vtype) VectorFn(vtype, new)()                                            
 {                                                                                 \
     Vector(vtype) vc = VECTOR_NOT_NULLPTR(new(Vector(vtype)), "new");             \
     vc->v = NULL;                                                                 \
-    vc->length = 0;                                                               \
-    vc->capacity = 0;                                                             \
+    vc->len = 0;                                                                  \
+    vc->cap = 0;                                                                  \
     vc->free    = VectorFn(vtype, free);                                          \
     vc->length  = VectorFn(vtype, length);                                        \
     vc->isempty = VectorFn(vtype, isempty);                                       \
@@ -156,19 +157,19 @@ Vector(vtype) VectorFn(vtype, new)()                                            
 size_t VectorFn(vtype, length)(Vector(vtype) vc)                                  \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "length");                                             \
-    return vc->length;                                                            \
+    return vc->len;                                                               \
 }                                                                                 \
                                                                                   \
 bool VectorFn(vtype, isempty)(Vector(vtype) vc)                                   \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "isempty");                                            \
-    return !(vc->length);                                                         \
+    return !(vc->len);                                                            \
 }                                                                                 \
                                                                                   \
 vtype VectorFn(vtype, get)(Vector(vtype) vc, int index)                           \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "get");                                                \
-    if (index < 0 || index >= vc->length) {                                       \
+    if (index < 0 || index >= vc->len) {                                          \
         fprintf(stderr, "vector: get(): index out of bounds: %d\n", index);       \
         abort();                                                                  \
     }                                                                             \
@@ -178,7 +179,7 @@ vtype VectorFn(vtype, get)(Vector(vtype) vc, int index)                         
 vtype *VectorFn(vtype, getref)(Vector(vtype) vc, int index)                       \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "getref");                                             \
-    if (index < 0 || index >= vc->length) {                                       \
+    if (index < 0 || index >= vc->len) {                                          \
         fprintf(stderr, "vector: getref(): index out of bounds: %d\n", index);    \
         abort();                                                                  \
     }                                                                             \
@@ -188,7 +189,7 @@ vtype *VectorFn(vtype, getref)(Vector(vtype) vc, int index)                     
 vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                   \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "begin");                                              \
-    if (0 >= vc->length) {                                                        \
+    if (0 >= vc->len) {                                                           \
         fprintf(stderr, "vector: begin(): vector empty\n");                       \
         abort();                                                                  \
     }                                                                             \
@@ -197,7 +198,7 @@ vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                 
                                                                                   \
 vtype *VectorFn(vtype, rbegin)(Vector(vtype) vc)                                  \
 {                                                                                 \
-    int index = vc->length -1;                                                    \
+    int index = vc->len -1;                                                       \
     VECTOR_NOT_NULLPTR(vc, "rbegin");                                             \
     if (index < 0) {                                                              \
         fprintf(stderr, "vector: rbegin(): index out of bounds: %d\n", index);    \
@@ -228,7 +229,7 @@ vtype *VectorFn(vtype, rnext)(Vector(vtype) vc, vtype *curr)                    
 bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)                 \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "set");                                                \
-    if (index < 0 || index >= vc->length) {                                       \
+    if (index < 0 || index >= vc->len) {                                          \
         fprintf(stderr, "vector: set(): index out of bounds: %d\n", index);       \
         abort();                                                                  \
     }                                                                             \
@@ -238,11 +239,11 @@ bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)               
 bool VectorFn(vtype, push)(Vector(vtype) vc, vtype val)                           \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "push");                                               \
-    if (vc->length >= vc->capacity) {                                             \
-        vc->capacity = (int) (2 * vc->capacity) +1;                               \
-        vc->v = realloc(vc->v, sizeof(vtype) * vc->capacity);                     \
+    if (vc->len >= vc->cap) {                                                     \
+        vc->cap = (int) (2 * vc->cap) +1;                                         \
+        vc->v = realloc(vc->v, sizeof(vtype) * vc->cap);                          \
     }                                                                             \
-    vc->v[vc->length++] = val;                                                    \
+    vc->v[vc->len++] = val;                                                       \
     return true;                                                                  \
 }                                                                                 \
                                                                                   \
@@ -250,7 +251,7 @@ vtype VectorFn(vtype, pop)(Vector(vtype) vc)                                    
 {                                                                                 \
      VECTOR_NOT_NULLPTR(vc, "pop");                                               \
      vtype retv = *vc->rbegin(vc);                                                \
-     vc->length--;                                                                \
+     vc->len--;                                                                   \
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
