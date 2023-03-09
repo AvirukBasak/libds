@@ -16,6 +16,6 @@ int main() {
         STACK_FOREACH(st, printf("%d ", *value));
         printf("}\n");
         printf("pop = %d\n", st->pop(st));
-    };
+    }
     return 0;
 }
