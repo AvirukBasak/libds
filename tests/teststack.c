@@ -14,7 +14,7 @@ int main() {
     while (!st->isempty(st)) {
         printf("st = { ");
         STACK_FOREACH(st, printf("%d ", *value));
-        printf("}\n");
+        printf("}; ");
         printf("pop = %d\n", st->pop(st));
     }
     return 0;

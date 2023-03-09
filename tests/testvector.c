@@ -4,29 +4,31 @@ VECTOR_DECLARE(int);
 VECTOR_DEFINE(int);
 
 int main() {
-    Vector(int) vc = VectorFn(int, new)();
-    vc->push(vc, 56);
-    vc->push(vc, 38);
-    vc->push(vc, 90);
-    vc->push(vc, 23);
-    vc->push(vc, 14);
+    Vector(int) vc1 = VectorFn(int, new)();
+    vc1->push(vc1, 56);
+    vc1->push(vc1, 38);
+    vc1->push(vc1, 90);
+    vc1->push(vc1, 23);
+    vc1->push(vc1, 14);
 
-    printf("vc = { ");
-    VECTOR_FOREACH(vc, printf("%d ", *value));
+    Vector(int) vc2 = vc1->clone(vc1);
+
+    printf("vc2 = { ");
+    VECTOR_FOREACH(vc2, printf("%d ", *value));
     printf("}\n");
 
-    vc->reverse(vc);
+    vc2->reverse(vc2);
     
-    printf("vc = { ");
-    VECTOR_FOREACH(vc, printf("%d ", *value));
+    printf("vc2 = { ");
+    VECTOR_FOREACH(vc2, printf("%d ", *value));
     printf("}\n");
 
-    printf("len = %zu\n", vc->length(vc));
-    while (!vc->isempty(vc)) {
-        printf("vc = { ");
-        VECTOR_FOREACH(vc, printf("%d ", *value));
-        printf("}\n");
-        printf("pop = %d\n", vc->pop(vc));
+    printf("len = %zu\n", vc1->length(vc1));
+    while (!vc1->isempty(vc1)) {
+        printf("vc1 = { ");
+        VECTOR_FOREACH(vc1, printf("%d ", *value));
+        printf("}; ");
+        printf("pop = %d\n", vc1->pop(vc1));
     };
     return 0;
 }
