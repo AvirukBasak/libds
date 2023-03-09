@@ -34,7 +34,7 @@
  */
 #define VECTOR_NOT_NULLPTR(ptr, fn) ({                                            \
     if (!ptr) {                                                                   \
-        fprintf("vector: %s(): null pointer\n", fn);                              \
+        fprintf(stderr, "vector: %s(): null pointer\n", fn);                      \
         abort();                                                                  \
     }                                                                             \
     ptr;                                                                          \
@@ -44,7 +44,7 @@
 /**
  * Iterate through the vector
  * @param vc The vector
- * @param action{Vector(vtype) vc, int i, vtype *value} A code block
+ * @param action{int i, vtype *value} A code block
  */
 #define VECTOR_FOREACH(vc, action) ({                                             \
     VECTOR_NOT_NULLPTR(vc, "FOREACH");                                            \
@@ -60,7 +60,7 @@
 /**
  * Iterate in reverse through the vector
  * @param vc The vector
- * @param action{Vector(vtype) vc, int i, vtype *value} A code block
+ * @param action{int i, vtype *value} A code block
  */
 #define VECTOR_RFOREACH(vc, action) ({                                            \
     VECTOR_NOT_NULLPTR(vc, "RFOREACH");                                           \
@@ -85,8 +85,8 @@ typedef int (*cmpfn_t)(vtype a, vtype b);                                       
                                                                                   \
 struct Vector(vtype) {                                                            \
     vtype *v;                                                                     \
-    size_t length;                                                                \
-    size_t capacity;                                                              \
+    size_t len;                                                                   \
+    size_t cap;                                                                   \
     void          (*free)    (Vector(vtype) *vc_ptr);                             \
     size_t        (*length)  (Vector(vtype) vc);                                  \
     bool          (*isempty) (Vector(vtype) vc);                                  \
@@ -149,8 +149,8 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     vc->push    = VectorFn(vtype, push);                                          \
     vc->pop     = VectorFn(vtype, pop);                                           \
     vc->clone   = VectorFn(vtype, clone);                                         \
-    vc->clone   = VectorFn(vtype, qsort);                                         \
-    vc->clone   = VectorFn(vtype, reverse);                                       \
+    vc->qsort   = VectorFn(vtype, qsort);                                         \
+    vc->reverse = VectorFn(vtype, reverse);                                       \
     return vc;                                                                    \
 }                                                                                 \
                                                                                   \

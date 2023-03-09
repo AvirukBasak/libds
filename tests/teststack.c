@@ -10,11 +10,12 @@ int main() {
     st->push(st, 90);
     st->push(st, 23);
     st->push(st, 14);
-    STACK_FOREACH(st, {
+    printf("len = %zu\n", st->length(st));
+    while (!st->isempty(st)) {
         printf("st = { ");
         STACK_FOREACH(st, printf("%d ", *value));
         printf("}\n");
         printf("pop = %d\n", st->pop(st));
-    });
+    };
     return 0;
 }

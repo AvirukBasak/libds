@@ -44,7 +44,7 @@
 /**
  * Iterate through the stack
  * @param st The stack
- * @param action{Stack(vtype) st, int i, vtype *value} A code block
+ * @param action{int i, vtype *value} A code block
  */
 #define STACK_FOREACH(st, action) ({                                              \
     STACK_NOT_NULLPTR(st, "FOREACH");                                             \
@@ -60,7 +60,7 @@
 /**
  * Iterate in reverse through the stack
  * @param st The stack
- * @param action{Stack(vtype) st, int i, vtype *value} A code block
+ * @param action{int i, vtype *value} A code block
  */
 #define STACK_RFOREACH(st, action) ({                                             \
     STACK_NOT_NULLPTR(st, "RFOREACH");                                            \
@@ -207,7 +207,6 @@ bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                           
 vtype StackFn(vtype, top)(Stack(vtype) st)                                        \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "top");                                                 \
-    if (st->len -1 < 0) return (vtype) 0;                                         \
     return *st->rbegin(st);                                                       \
 }                                                                                 \
                                                                                   \
