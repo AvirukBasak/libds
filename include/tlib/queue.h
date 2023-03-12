@@ -48,8 +48,8 @@
  */
 #define QUEUE_FOREACH(qu, action) ({                                              \
     QUEUE_NOT_NULLPTR(qu, "FOREACH");                                             \
-    for (int _i = qu->fnt; _i < qu->rer; _i++) {                                  \
-        typeof(qu->v) const value = &(qu->v[_i]); value;                          \
+    for (int _i = qu->_.fnt; _i < qu->_.rer; _i++) {                              \
+        typeof(qu->_.v) const value = &(qu->_.v[_i]); value;                      \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
         action;                                                                   \
@@ -64,8 +64,8 @@
  */
 #define QUEUE_RFOREACH(qu, action) ({                                             \
     QUEUE_NOT_NULLPTR(qu, "RFOREACH");                                            \
-    for (int _i = qu->rer -1; _i >= qu->fnt ; _i--) {                             \
-        typeof(qu->v) const value = &(qu->v[_i]); value;                          \
+    for (int _i = qu->_.rer -1; _i >= qu->_.fnt ; _i--) {                         \
+        typeof(qu->_.v) const value = &(qu->_.v[_i]); value;                      \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
         action;                                                                   \
@@ -83,10 +83,6 @@
 typedef struct Queue(vtype) *Queue(vtype);                                        \
                                                                                   \
 struct Queue(vtype) {                                                             \
-    vtype *v;                                                                     \
-    size_t fnt;                                                                   \
-    size_t rer;                                                                   \
-    size_t cap;                                                                   \
     void          (*free)    (Queue(vtype) *qu_ptr);                              \
     size_t        (*length)  (Queue(vtype) qu);                                   \
     bool          (*isempty) (Queue(vtype) qu);                                   \
@@ -99,6 +95,13 @@ struct Queue(vtype) {                                                           
     vtype         (*front)   (Queue(vtype) qu);                                   \
     vtype         (*pop)     (Queue(vtype) qu);                                   \
     Queue(vtype)  (*clone)   (Queue(vtype) qu);                                   \
+    /** private data members, do not modify */                                    \
+    struct private {                                                              \
+        vtype *v;                                                                 \
+        size_t fnt;                                                               \
+        size_t rer;                                                               \
+        size_t cap;                                                               \
+    } _;                                                                          \
 };                                                                                \
                                                                                   \
 Queue(vtype)  QueueFn(vtype, new)();                                              \
@@ -127,10 +130,10 @@ Queue(vtype)  QueueFn(vtype, clone)   (Queue(vtype) qu);
 Queue(vtype) QueueFn(vtype, new)()                                                \
 {                                                                                 \
     Queue(vtype) qu = QUEUE_NOT_NULLPTR(new(Queue(vtype)), "new");                \
-    qu->v = NULL;                                                                 \
-    qu->fnt = 0;                                                                  \
-    qu->rer = 0;                                                                  \
-    qu->cap = 0;                                                                  \
+    qu->_.v = NULL;                                                               \
+    qu->_.fnt = 0;                                                                \
+    qu->_.rer = 0;                                                                \
+    qu->_.cap = 0;                                                                \
     qu->free    = QueueFn(vtype, free);                                           \
     qu->length  = QueueFn(vtype, length);                                         \
     qu->isempty = QueueFn(vtype, isempty);                                        \
@@ -149,44 +152,44 @@ Queue(vtype) QueueFn(vtype, new)()                                              
 size_t QueueFn(vtype, length)(Queue(vtype) qu)                                    \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "length");                                              \
-    return qu->rer - qu->fnt;                                                     \
+    return qu->_.rer - qu->_.fnt;                                                 \
 }                                                                                 \
                                                                                   \
 bool QueueFn(vtype, isempty)(Queue(vtype) qu)                                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "isempty");                                             \
-    return qu->rer - qu->fnt <= 0;                                                \
+    return qu->_.rer - qu->_.fnt <= 0;                                            \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, getref)(Queue(vtype) qu, int index)                         \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "getref");                                              \
-    if (index < qu->fnt || index >= qu->rer) {                                    \
+    if (index < qu->_.fnt || index >= qu->_.rer) {                                \
         fprintf(stderr, "queue: getref(): index out of bounds: %d\n", index);     \
         abort();                                                                  \
     }                                                                             \
-    return &(qu->v[index]);                                                       \
+    return &(qu->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, begin)(Queue(vtype) qu)                                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "begin");                                               \
-    if (qu->fnt >= qu->rer) {                                                     \
+    if (qu->_.fnt >= qu->_.rer) {                                                 \
         fprintf(stderr, "queue: begin(): queue empty\n");                         \
         abort();                                                                  \
     }                                                                             \
-    return &(qu->v[qu->fnt]);                                                     \
+    return &(qu->_.v[qu->_.fnt]);                                                 \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, rbegin)(Queue(vtype) qu)                                    \
 {                                                                                 \
-    int index = qu->rer -1;                                                       \
+    int index = qu->_.rer -1;                                                     \
     QUEUE_NOT_NULLPTR(qu, "rbegin");                                              \
-    if (index < qu->fnt) {                                                        \
+    if (index < qu->_.fnt) {                                                      \
         fprintf(stderr, "queue: rbegin(): queue empty\n");                        \
         abort();                                                                  \
     }                                                                             \
-    return &(qu->v[index]);                                                       \
+    return &(qu->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
 vtype *QueueFn(vtype, next)(Queue(vtype) qu, vtype *curr)                         \
@@ -211,26 +214,26 @@ vtype *QueueFn(vtype, rnext)(Queue(vtype) qu, vtype *curr)                      
 bool QueueFn(vtype, push)(Queue(vtype) qu, vtype val)                             \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "push");                                                \
-    if (qu->rer >= qu->cap) {                                                     \
-        qu->cap = (int) (2 * qu->cap) +1;                                         \
-        qu->v = realloc(qu->v, sizeof(vtype) * qu->cap);                          \
+    if (qu->_.rer >= qu->_.cap) {                                                 \
+        qu->_.cap = (int) (2 * qu->_.cap) +1;                                     \
+        qu->_.v = realloc(qu->_.v, sizeof(vtype) * qu->_.cap);                    \
     }                                                                             \
-    qu->v[qu->rer++] = val;                                                       \
+    qu->_.v[qu->_.rer++] = val;                                                   \
     return true;                                                                  \
 }                                                                                 \
                                                                                   \
 vtype QueueFn(vtype, front)(Queue(vtype) qu)                                      \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "front");                                               \
-    return *qu->getref(qu, qu->fnt);                                              \
+    return *qu->getref(qu, qu->_.fnt);                                            \
 }                                                                                 \
                                                                                   \
 vtype QueueFn(vtype, pop)(Queue(vtype) qu)                                        \
 {                                                                                 \
      QUEUE_NOT_NULLPTR(qu, "pop");                                                \
-     vtype retv = *qu->getref(qu, qu->fnt);                                       \
-     qu->fnt++;                                                                   \
-     if (qu->isempty(qu)) qu->rer = qu->fnt = 0;                                  \
+     vtype retv = *qu->getref(qu, qu->_.fnt);                                     \
+     qu->_.fnt++;                                                                 \
+     if (qu->isempty(qu)) qu->_.rer = qu->_.fnt = 0;                              \
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
