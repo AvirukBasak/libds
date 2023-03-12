@@ -48,8 +48,8 @@
  */
 #define STACK_FOREACH(st, action) ({                                              \
     STACK_NOT_NULLPTR(st, "FOREACH");                                             \
-    for (int _i = 0; _i < st->len; _i++) {                                        \
-        typeof(st->v) const value = &(st->v[_i]); value;                          \
+    for (int _i = 0; _i < st->_.len; _i++) {                                      \
+        typeof(st->_.v) const value = &(st->_.v[_i]); value;                      \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
         action;                                                                   \
@@ -64,8 +64,8 @@
  */
 #define STACK_RFOREACH(st, action) ({                                             \
     STACK_NOT_NULLPTR(st, "RFOREACH");                                            \
-    for (int _i = st->len -1; _i >= 0 ; _i--) {                                   \
-        typeof(st->v) const value = &(st->v[_i]); value;                          \
+    for (int _i = st->_.len -1; _i >= 0 ; _i--) {                                 \
+        typeof(st->_.v) const value = &(st->_.v[_i]); value;                      \
         const int i = _i; i;                                                      \
         const int _i = 0; _i;                                                     \
         action;                                                                   \
@@ -83,9 +83,6 @@
 typedef struct Stack(vtype) *Stack(vtype);                                        \
                                                                                   \
 struct Stack(vtype) {                                                             \
-    vtype *v;                                                                     \
-    size_t len;                                                                   \
-    size_t cap;                                                                   \
     void          (*free)    (Stack(vtype) *st_ptr);                              \
     size_t        (*length)  (Stack(vtype) st);                                   \
     bool          (*isempty) (Stack(vtype) st);                                   \
@@ -97,6 +94,12 @@ struct Stack(vtype) {                                                           
     vtype         (*top)     (Stack(vtype) st);                                   \
     vtype         (*pop)     (Stack(vtype) st);                                   \
     Stack(vtype)  (*clone)   (Stack(vtype) st);                                   \
+    /** private data members, do not modify */                                    \
+    struct private {                                                              \
+        vtype *v;                                                                 \
+        size_t len;                                                               \
+        size_t cap;                                                               \
+    } _;                                                                          \
 };                                                                                \
                                                                                   \
 Stack(vtype)  StackFn(vtype, new)();                                              \
@@ -124,9 +127,9 @@ Stack(vtype)  StackFn(vtype, clone)   (Stack(vtype) st);
 Stack(vtype) StackFn(vtype, new)()                                                \
 {                                                                                 \
     Stack(vtype) st = STACK_NOT_NULLPTR(new(Stack(vtype)), "new");                \
-    st->v = NULL;                                                                 \
-    st->len = 0;                                                                  \
-    st->cap = 0;                                                                  \
+    st->_.v = NULL;                                                               \
+    st->_.len = 0;                                                                \
+    st->_.cap = 0;                                                                \
     st->free    = StackFn(vtype, free);                                           \
     st->length  = StackFn(vtype, length);                                         \
     st->isempty = StackFn(vtype, isempty);                                        \
@@ -144,34 +147,34 @@ Stack(vtype) StackFn(vtype, new)()                                              
 size_t StackFn(vtype, length)(Stack(vtype) st)                                    \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "length");                                              \
-    return st->len;                                                               \
+    return st->_.len;                                                             \
 }                                                                                 \
                                                                                   \
 bool StackFn(vtype, isempty)(Stack(vtype) st)                                     \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "isempty");                                             \
-    return !(st->len);                                                            \
+    return !(st->_.len);                                                          \
 }                                                                                 \
                                                                                   \
 vtype *StackFn(vtype, begin)(Stack(vtype) st)                                     \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "begin");                                               \
-    if (0 >= st->len) {                                                           \
+    if (0 >= st->_.len) {                                                         \
         fprintf(stderr, "stack: begin(): stack empty\n");                         \
         abort();                                                                  \
     }                                                                             \
-    return &(st->v[0]);                                                           \
+    return &(st->_.v[0]);                                                         \
 }                                                                                 \
                                                                                   \
 vtype *StackFn(vtype, rbegin)(Stack(vtype) st)                                    \
 {                                                                                 \
-    int index = st->len -1;                                                       \
+    int index = st->_.len -1;                                                     \
     STACK_NOT_NULLPTR(st, "rbegin");                                              \
     if (index < 0) {                                                              \
         fprintf(stderr, "stack: rbegin(): stack empty\n");                        \
         abort();                                                                  \
     }                                                                             \
-    return &(st->v[index]);                                                       \
+    return &(st->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
 vtype *StackFn(vtype, next)(Stack(vtype) st, vtype *curr)                         \
@@ -196,11 +199,11 @@ vtype *StackFn(vtype, rnext)(Stack(vtype) st, vtype *curr)                      
 bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                             \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "push");                                                \
-    if (st->len >= st->cap) {                                                     \
-        st->cap = (int) (2 * st->cap) +1;                                         \
-        st->v = realloc(st->v, sizeof(vtype) * st->cap);                          \
+    if (st->_.len >= st->_.cap) {                                                 \
+        st->_.cap = (int) (2 * st->_.cap) +1;                                     \
+        st->_.v = realloc(st->_.v, sizeof(vtype) * st->_.cap);                    \
     }                                                                             \
-    st->v[st->len++] = val;                                                       \
+    st->_.v[st->_.len++] = val;                                                   \
     return true;                                                                  \
 }                                                                                 \
                                                                                   \
@@ -214,7 +217,7 @@ vtype StackFn(vtype, pop)(Stack(vtype) st)                                      
 {                                                                                 \
      STACK_NOT_NULLPTR(st, "pop");                                                \
      vtype retv = *st->rbegin(st);                                                \
-     st->len--;                                                                   \
+     st->_.len--;                                                                 \
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
