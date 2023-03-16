@@ -8,7 +8,8 @@
  * memory using calloc
  */
 #define new(struct_t) ({                                                          \
-    calloc(1, sizeof(struct struct_t));                                           \
+    struct struct_t *tmp = calloc(1, sizeof(struct struct_t));                    \
+    tmp;                                                                          \
 })
 
 #undef delete
@@ -33,11 +34,12 @@
  * @return ptr If not null
  */
 #define STACK_NOT_NULLPTR(ptr, fn) ({                                             \
-    if (!ptr) {                                                                   \
+    void *tmp = ptr;                                                              \
+    if (!tmp) {                                                                   \
         fprintf(stderr, "stack: %s(): null pointer\n", fn);                       \
         abort();                                                                  \
     }                                                                             \
-    ptr;                                                                          \
+    tmp;                                                                          \
 })
 
 #undef STACK_FOREACH
@@ -231,7 +233,9 @@ Stack(vtype) StackFn(vtype, clone)(Stack(vtype) st)                             
                                                                                   \
 void StackFn(vtype, free)(Stack(vtype) *st_ptr)                                   \
 {                                                                                 \
-    if (!st_ptr || !*st_ptr) return;                                              \
+    STACK_NOT_NULLPTR(st_ptr, "free");                                            \
+    STACK_NOT_NULLPTR(*st_ptr, "free");                                           \
+    free((*st_ptr)->_.v);                                                         \
     free(*st_ptr);                                                                \
     *st_ptr = NULL;                                                               \
 }

@@ -17,5 +17,6 @@ int main() {
         printf("}; ");
         printf("pop = %d\n", st->pop(st));
     }
+    st->free(&st);
     return 0;
 }
