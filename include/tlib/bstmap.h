@@ -10,7 +10,8 @@
  * memory using calloc
  */
 #define new(struct_t) ({                                                                                  \
-    calloc(1, sizeof(struct struct_t));                                                                   \
+    struct struct_t *tmp = calloc(1, sizeof(struct struct_t));                                            \
+    tmp;                                                                                                  \
 })
 
 #undef delete
@@ -37,11 +38,12 @@
  * @return ptr If not null
  */
 #define BSTMAP_NOT_NULLPTR(ptr, fn) ({                                                                    \
-    if (!ptr) {                                                                                           \
+    void *tmp = ptr;                                                                                      \
+    if (!tmp) {                                                                                           \
         fprintf(stderr, "bstmap: %s(): null pointer\n", fn);                                              \
         abort();                                                                                          \
     }                                                                                                     \
-    ptr;                                                                                                  \
+    tmp;                                                                                                  \
 })
 
 #undef BSTMAP_FOREACH
@@ -85,7 +87,6 @@ struct BstmapData(ktype, vtype) {                                               
 typedef struct Bstmap(ktype, vtype) *Bstmap(ktype, vtype);                                                \
                                                                                                           \
 struct Bstmap(ktype, vtype) {                                                                             \
-    BstmapAvl(ktype, vtype) avl;                                                                          \
     size_t len;                                                                                           \
     size_t                   (*length) (Bstmap(ktype, vtype) bm);                                         \
     bool                     (*has)    (Bstmap(ktype, vtype) bm, ktype key);                              \
@@ -94,6 +95,9 @@ struct Bstmap(ktype, vtype) {                                                   
     bool                     (*set)    (Bstmap(ktype, vtype) bm, ktype key, vtype val);                   \
     bool                     (*del)    (Bstmap(ktype, vtype) bm, ktype key);                              \
     void                     (*free)   (Bstmap(ktype, vtype) *bm_ptr);                                    \
+    struct private {                                                                                      \
+        BstmapAvl(ktype, vtype) avl;                                                                      \
+    } _;                                                                                                  \
 };                                                                                                        \
                                                                                                           \
 Bstmap(ktype, vtype)     BstmapFn(ktype, vtype, new)();                                                   \
@@ -115,4 +119,10 @@ void                     BstmapFn(ktype, vtype, free)   (Bstmap(ktype, vtype) *b
  * Note: cmpact should return +ve if key1 > key2, -ve if key1 < key2, else 0
  */
 #define BSTMAP_DEFINE(ktype, vtype, cmpact)                                                               \
-
+                                                                                                          \
+Bstmap(ktype, vtype) BstmapFn(ktype, vtype, new)()                                                        \
+{                                                                                                         \
+    Bstmap(ktype, vtype) bm = BSTMAP_NOT_NULLPTR(new(Bstmap(ktype, vtype)), "new");                       \
+    bm->_.avl = BSTMAP_NOT_NULLPTR(new(AVL), "new avl");                                                  \
+    //
+}
