@@ -8,7 +8,8 @@
  * memory using calloc
  */
 #define new(struct_t) ({                                                          \
-    calloc(1, sizeof(struct struct_t));                                           \
+    struct struct_t *tmp = calloc(1, sizeof(struct struct_t));                    \
+    tmp;                                                                          \
 })
 
 #undef delete
@@ -33,11 +34,12 @@
  * @return ptr If not null
  */
 #define VECTOR_NOT_NULLPTR(ptr, fn) ({                                            \
-    if (!ptr) {                                                                   \
+    void *tmp = ptr;                                                              \
+    if (!tmp) {                                                                   \
         fprintf(stderr, "vector: %s(): null pointer\n", fn);                      \
         abort();                                                                  \
     }                                                                             \
-    ptr;                                                                          \
+    tmp;                                                                          \
 })
 
 #undef VECTOR_FOREACH
@@ -89,6 +91,8 @@ struct Vector(vtype) {                                                          
     bool          (*isempty) (Vector(vtype) vc);                                  \
     vtype         (*get)     (Vector(vtype) vc, int index);                       \
     vtype*        (*getref)  (Vector(vtype) vc, int index);                       \
+    vtype         (*front)   (Vector(vtype) vc);                                  \
+    vtype         (*back)    (Vector(vtype) vc);                                  \
     vtype*        (*begin)   (Vector(vtype) vc);                                  \
     vtype*        (*rbegin)  (Vector(vtype) vc);                                  \
     vtype*        (*next)    (Vector(vtype) vc, vtype *curr);                     \
@@ -113,6 +117,8 @@ size_t        VectorFn(vtype, length)  (Vector(vtype) vc);                      
 bool          VectorFn(vtype, isempty) (Vector(vtype) vc);                        \
 vtype         VectorFn(vtype, get)     (Vector(vtype) vc, int index);             \
 vtype*        VectorFn(vtype, getref)  (Vector(vtype) vc, int index);             \
+vtype         VectorFn(vtype, front)   (Vector(vtype) vc);                        \
+vtype         VectorFn(vtype, back)    (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, begin)   (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, rbegin)  (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, next)    (Vector(vtype) vc, vtype *curr);           \
@@ -144,6 +150,8 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     vc->isempty = VectorFn(vtype, isempty);                                       \
     vc->get     = VectorFn(vtype, get);                                           \
     vc->getref  = VectorFn(vtype, getref);                                        \
+    vc->front   = VectorFn(vtype, front);                                         \
+    vc->back    = VectorFn(vtype, back);                                          \
     vc->begin   = VectorFn(vtype, begin);                                         \
     vc->rbegin  = VectorFn(vtype, rbegin);                                        \
     vc->next    = VectorFn(vtype, next);                                          \
@@ -187,6 +195,18 @@ vtype *VectorFn(vtype, getref)(Vector(vtype) vc, int index)                     
         abort();                                                                  \
     }                                                                             \
     return &(vc->_.v[index]);                                                     \
+}                                                                                 \
+                                                                                  \
+vtype VectorFn(vtype, front)(Vector(vtype) vc)                                    \
+{                                                                                 \
+    VECTOR_NOT_NULLPTR(vc, "front");                                              \
+    return *(vc->begin(vc));                                                      \
+}                                                                                 \
+                                                                                  \
+vtype VectorFn(vtype, back)(Vector(vtype) vc)                                     \
+{                                                                                 \
+    VECTOR_NOT_NULLPTR(vc, "back");                                               \
+    return *(vc->rbegin(vc));                                                     \
 }                                                                                 \
                                                                                   \
 vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                   \
@@ -289,7 +309,9 @@ Vector(vtype) VectorFn(vtype, reverse)(Vector(vtype) vc)                        
                                                                                   \
 void VectorFn(vtype, free)(Vector(vtype) *vc_ptr)                                 \
 {                                                                                 \
-    if (!vc_ptr || !*vc_ptr) return;                                              \
+    VECTOR_NOT_NULLPTR(vc_ptr, "free");                                           \
+    VECTOR_NOT_NULLPTR(*vc_ptr, "free");                                          \
+    free((*vc_ptr)->_.v);                                                         \
     free(*vc_ptr);                                                                \
     *vc_ptr = NULL;                                                               \
 }
