@@ -30,5 +30,8 @@ int main() {
         printf("}; ");
         printf("pop = %d\n", vc1->pop(vc1));
     };
+
+    vc1->free(&vc1);
+    vc2->free(&vc2);
     return 0;
 }
