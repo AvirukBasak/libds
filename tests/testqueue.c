@@ -25,5 +25,6 @@ int main() {
     printf("qu:%zu = { ", qu->length(qu));
     QUEUE_FOREACH(qu, printf("%d ", *value));
     printf("}\n");
+    qu->free(&qu);
     return 0;
 }
