@@ -97,7 +97,7 @@ struct Stack(vtype) {                                                           
     vtype         (*pop)     (Stack(vtype) st);                                   \
     Stack(vtype)  (*clone)   (Stack(vtype) st);                                   \
     /** private data members, do not modify */                                    \
-    struct private {                                                              \
+    struct {                                                                      \
         vtype *v;                                                                 \
         size_t len;                                                               \
         size_t cap;                                                               \

@@ -98,7 +98,7 @@ struct Queue(vtype) {                                                           
     vtype         (*pop)     (Queue(vtype) qu);                                   \
     Queue(vtype)  (*clone)   (Queue(vtype) qu);                                   \
     /** private data members, do not modify */                                    \
-    struct private {                                                              \
+    struct {                                                                      \
         vtype *v;                                                                 \
         size_t fnt;                                                               \
         size_t rer;                                                               \

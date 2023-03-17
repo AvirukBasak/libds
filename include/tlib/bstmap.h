@@ -95,7 +95,7 @@ struct Bstmap(ktype, vtype) {                                                   
     bool                     (*set)    (Bstmap(ktype, vtype) bm, ktype key, vtype val);                   \
     bool                     (*del)    (Bstmap(ktype, vtype) bm, ktype key);                              \
     void                     (*free)   (Bstmap(ktype, vtype) *bm_ptr);                                    \
-    struct private {                                                                                      \
+    struct {                                                                                              \
         BstmapAvl(ktype, vtype) avl;                                                                      \
     } _;                                                                                                  \
 };                                                                                                        \
