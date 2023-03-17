@@ -25,6 +25,7 @@
 
 #define Vector(vtype) Vector_##vtype
 #define VectorFn(vtype, func) Vector_##vtype##_##func
+#define VectorCmpFnT(vtype) Vector_##vtype##_##cmpfunc_t
 
 #undef VECTOR_NOT_NULLPTR
 /**
@@ -83,7 +84,7 @@
 #define VECTOR_DECLARE(vtype)                                                     \
                                                                                   \
 typedef struct Vector(vtype) *Vector(vtype);                                      \
-typedef int (*cmpfn_t)(vtype a, vtype b);                                         \
+typedef int (*VectorCmpFnT(vtype))(vtype a, vtype b);                             \
                                                                                   \
 struct Vector(vtype) {                                                            \
     void          (*free)    (Vector(vtype) *vc_ptr);                             \
@@ -104,10 +105,10 @@ struct Vector(vtype) {                                                          
     bool          (*insert)  (Vector(vtype) vc, int index, vtype val);            \
     vtype         (*erase)   (Vector(vtype) vc, int index);                       \
     Vector(vtype) (*clone)   (const Vector(vtype) vc);                            \
-    Vector(vtype) (*qsort)   (Vector(vtype) vc, cmpfn_t func);                    \
+    Vector(vtype) (*qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);           \
     Vector(vtype) (*reverse) (Vector(vtype) vc);                                  \
     /** private data members, do not modify */                                    \
-    struct private {                                                              \
+    struct {                                                                      \
         vtype *v;                                                                 \
         size_t len;                                                               \
         size_t cap;                                                               \
@@ -133,7 +134,7 @@ vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                      
 bool          VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);  \
 vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int index);             \
 Vector(vtype) VectorFn(vtype, clone)   (const Vector(vtype) vc);                  \
-Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, cmpfn_t func);          \
+Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f); \
 Vector(vtype) VectorFn(vtype, reverse) (Vector(vtype) vc);
 
 /**
@@ -335,7 +336,7 @@ Vector(vtype) VectorFn(vtype, clone)(const Vector(vtype) vc)                    
      return vec;                                                                  \
 }                                                                                 \
                                                                                   \
-Vector(vtype) VectorFn(vtype, qsort)(Vector(vtype) vc, cmpfn_t func)              \
+Vector(vtype) VectorFn(vtype, qsort)(Vector(vtype) vc, VectorCmpFnT(vtype) f)     \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "qsort");                                              \
      return vc;                                                                   \

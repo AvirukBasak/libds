@@ -3,6 +3,11 @@
 VECTOR_DECLARE(int);
 VECTOR_DEFINE(int);
 
+typedef char* str_t;
+
+VECTOR_DECLARE(str_t);
+VECTOR_DEFINE(str_t);
+
 int main() {
     Vector(int) vc1 = VectorFn(int, new)();
     vc1->insert(vc1, 0, 45);
