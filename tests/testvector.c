@@ -5,8 +5,17 @@ VECTOR_DEFINE(int);
 
 typedef char* str_t;
 
+typedef struct {
+    int m;
+    char *n;
+} Person;
+
+
 VECTOR_DECLARE(str_t);
 VECTOR_DEFINE(str_t);
+
+VECTOR_DECLARE(Person);
+VECTOR_DEFINE(Person);
 
 int main() {
     Vector(int) vc1 = VectorFn(int, new)();

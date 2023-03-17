@@ -271,7 +271,8 @@ bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)               
         fprintf(stderr, "vector: set(): index out of bounds: %d\n", index);       \
         abort();                                                                  \
     }                                                                             \
-    return vc->_.v[index];                                                        \
+    vc->_.v[index] = val;                                                         \
+    return true;                                                                  \
 }                                                                                 \
                                                                                   \
 bool VectorFn(vtype, push)(Vector(vtype) vc, vtype val)                           \
