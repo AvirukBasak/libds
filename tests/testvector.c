@@ -23,6 +23,7 @@ int main() {
 
     vc2->reverse(vc2);
     vc2->erase(vc2, 4);
+    vc2->erase(vc2, 0);
     vc2->erase(vc2, 13);
     
     printf("vc2 = { ");

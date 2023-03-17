@@ -189,7 +189,7 @@ bool VectorFn(vtype, isempty)(const Vector(vtype) vc)                           
 vtype VectorFn(vtype, get)(const Vector(vtype) vc, int index)                     \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "get");                                                \
-    if (index < 0 || index >= vc->_.len) {                                        \
+    if (index < 0 || index >= (int) vc->_.len) {                                  \
         fprintf(stderr, "vector: get(): index out of bounds: %d\n", index);       \
         abort();                                                                  \
     }                                                                             \
@@ -199,7 +199,7 @@ vtype VectorFn(vtype, get)(const Vector(vtype) vc, int index)                   
 vtype *VectorFn(vtype, getref)(const Vector(vtype) vc, int index)                 \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "getref");                                             \
-    if (index < 0 || index >= vc->_.len) {                                        \
+    if (index < 0 || index >= (int) vc->_.len) {                                  \
         fprintf(stderr, "vector: getref(): index out of bounds: %d\n", index);    \
         abort();                                                                  \
     }                                                                             \
@@ -266,7 +266,7 @@ vtype *VectorFn(vtype, rnext)(const Vector(vtype) vc, vtype *curr)              
 bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)                 \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "set");                                                \
-    if (index < 0 || index >= vc->_.len) {                                        \
+    if (index < 0 || index >= (int) vc->_.len) {                                  \
         fprintf(stderr, "vector: set(): index out of bounds: %d\n", index);       \
         abort();                                                                  \
     }                                                                             \
@@ -295,7 +295,7 @@ vtype VectorFn(vtype, pop)(Vector(vtype) vc)                                    
 bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)              \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "insert");                                             \
-    if (index >= vc->length(vc)) {                                                \
+    if (index >= (int) vc->_.len) {                                               \
         vc->push(vc, val);                                                        \
         return true;                                                              \
     }                                                                             \
@@ -314,7 +314,7 @@ bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)            
 vtype VectorFn(vtype, erase)(Vector(vtype) vc, int index)                         \
 {                                                                                 \
      VECTOR_NOT_NULLPTR(vc, "erase");                                             \
-     if (index >= vc->length(vc))                                                 \
+     if (index >= (int) vc->_.len)                                                \
          return vc->pop(vc);                                                      \
      vtype *p = vc->getref(vc, index);                                            \
      vtype retv = *p;                                                             \
