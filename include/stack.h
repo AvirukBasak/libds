@@ -1,3 +1,8 @@
+/**
+ * header guards are not required as every macro
+ * is undef-ed before defining
+ */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>

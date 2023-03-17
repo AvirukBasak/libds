@@ -74,6 +74,10 @@ int main() {
         printf("pop = %d\n", vc1->pop(vc1));
     };
 
+    int *n = vc2->find(vc2, 35, int_asc_compfn);
+    if (n) printf("\nfound %d\n", *n);
+    else printf("\nnot found 35\n");
+
     vc1->free(&vc1);
     vc2->free(&vc2);
 
@@ -98,6 +102,9 @@ int main() {
     printf("}\n");
 
     vcp->qsort(vcp, persn_asc_compfn);
+
+    Person *p = vcp->find(vcp, (Person) { 17, "Lily" }, persn_asc_compfn);
+    if (p) printf("\nfound %d, %s\n\n", p->m, p->n);
 
     printf("vcp = {\n");
     VECTOR_FOREACH(vcp, printf("    %d, %s\n", value->m, value->n));
