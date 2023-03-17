@@ -87,23 +87,23 @@ typedef int (*cmpfn_t)(vtype a, vtype b);                                       
                                                                                   \
 struct Vector(vtype) {                                                            \
     void          (*free)    (Vector(vtype) *vc_ptr);                             \
-    size_t        (*length)  (Vector(vtype) vc);                                  \
-    bool          (*isempty) (Vector(vtype) vc);                                  \
-    vtype         (*get)     (Vector(vtype) vc, int index);                       \
-    vtype*        (*getref)  (Vector(vtype) vc, int index);                       \
-    vtype         (*front)   (Vector(vtype) vc);                                  \
-    vtype         (*back)    (Vector(vtype) vc);                                  \
-    vtype*        (*begin)   (Vector(vtype) vc);                                  \
-    vtype*        (*end)     (Vector(vtype) vc);                                  \
-    vtype*        (*rbegin)  (Vector(vtype) vc);                                  \
-    vtype*        (*next)    (Vector(vtype) vc, vtype *curr);                     \
-    vtype*        (*rnext)   (Vector(vtype) vc, vtype *curr);                     \
+    size_t        (*length)  (const Vector(vtype) vc);                            \
+    bool          (*isempty) (const Vector(vtype) vc);                            \
+    vtype         (*get)     (const Vector(vtype) vc, int index);                 \
+    vtype*        (*getref)  (const Vector(vtype) vc, int index);                 \
+    vtype         (*front)   (const Vector(vtype) vc);                            \
+    vtype         (*back)    (const Vector(vtype) vc);                            \
+    vtype*        (*begin)   (const Vector(vtype) vc);                            \
+    vtype*        (*end)     (const Vector(vtype) vc);                            \
+    vtype*        (*rbegin)  (const Vector(vtype) vc);                            \
+    vtype*        (*next)    (const Vector(vtype) vc, vtype *curr);               \
+    vtype*        (*rnext)   (const Vector(vtype) vc, vtype *curr);               \
     bool          (*set)     (Vector(vtype) vc, int index, vtype val);            \
     bool          (*push)    (Vector(vtype) vc, vtype val);                       \
     vtype         (*pop)     (Vector(vtype) vc);                                  \
     bool          (*insert)  (Vector(vtype) vc, int index, vtype val);            \
     vtype         (*erase)   (Vector(vtype) vc, int index);                       \
-    Vector(vtype) (*clone)   (Vector(vtype) vc);                                  \
+    Vector(vtype) (*clone)   (const Vector(vtype) vc);                            \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, cmpfn_t func);                    \
     Vector(vtype) (*reverse) (Vector(vtype) vc);                                  \
     /** private data members, do not modify */                                    \
@@ -116,23 +116,23 @@ struct Vector(vtype) {                                                          
                                                                                   \
 Vector(vtype) VectorFn(vtype, new)();                                             \
 void          VectorFn(vtype, free)    (Vector(vtype) *vc_ptr);                   \
-size_t        VectorFn(vtype, length)  (Vector(vtype) vc);                        \
-bool          VectorFn(vtype, isempty) (Vector(vtype) vc);                        \
-vtype         VectorFn(vtype, get)     (Vector(vtype) vc, int index);             \
-vtype*        VectorFn(vtype, getref)  (Vector(vtype) vc, int index);             \
-vtype         VectorFn(vtype, front)   (Vector(vtype) vc);                        \
-vtype         VectorFn(vtype, back)    (Vector(vtype) vc);                        \
-vtype*        VectorFn(vtype, begin)   (Vector(vtype) vc);                        \
-vtype*        VectorFn(vtype, end)     (Vector(vtype) vc);                        \
-vtype*        VectorFn(vtype, rbegin)  (Vector(vtype) vc);                        \
-vtype*        VectorFn(vtype, next)    (Vector(vtype) vc, vtype *curr);           \
-vtype*        VectorFn(vtype, rnext)   (Vector(vtype) vc, vtype *curr);           \
+size_t        VectorFn(vtype, length)  (const Vector(vtype) vc);                  \
+bool          VectorFn(vtype, isempty) (const Vector(vtype) vc);                  \
+vtype         VectorFn(vtype, get)     (const Vector(vtype) vc, int index);       \
+vtype*        VectorFn(vtype, getref)  (const Vector(vtype) vc, int index);       \
+vtype         VectorFn(vtype, front)   (const Vector(vtype) vc);                  \
+vtype         VectorFn(vtype, back)    (const Vector(vtype) vc);                  \
+vtype*        VectorFn(vtype, begin)   (const Vector(vtype) vc);                  \
+vtype*        VectorFn(vtype, end)     (const Vector(vtype) vc);                  \
+vtype*        VectorFn(vtype, rbegin)  (const Vector(vtype) vc);                  \
+vtype*        VectorFn(vtype, next)    (const Vector(vtype) vc, vtype *curr);     \
+vtype*        VectorFn(vtype, rnext)   (const Vector(vtype) vc, vtype *curr);     \
 bool          VectorFn(vtype, set)     (Vector(vtype) vc, int index, vtype val);  \
 bool          VectorFn(vtype, push)    (Vector(vtype) vc, vtype val);             \
 vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                        \
 bool          VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);  \
 vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int index);             \
-Vector(vtype) VectorFn(vtype, clone)   (Vector(vtype) vc);                        \
+Vector(vtype) VectorFn(vtype, clone)   (const Vector(vtype) vc);                  \
 Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, cmpfn_t func);          \
 Vector(vtype) VectorFn(vtype, reverse) (Vector(vtype) vc);
 
@@ -174,19 +174,19 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     return vc;                                                                    \
 }                                                                                 \
                                                                                   \
-size_t VectorFn(vtype, length)(Vector(vtype) vc)                                  \
+size_t VectorFn(vtype, length)(const Vector(vtype) vc)                            \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "length");                                             \
     return vc->_.len;                                                             \
 }                                                                                 \
                                                                                   \
-bool VectorFn(vtype, isempty)(Vector(vtype) vc)                                   \
+bool VectorFn(vtype, isempty)(const Vector(vtype) vc)                             \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "isempty");                                            \
     return !(vc->_.len);                                                          \
 }                                                                                 \
                                                                                   \
-vtype VectorFn(vtype, get)(Vector(vtype) vc, int index)                           \
+vtype VectorFn(vtype, get)(const Vector(vtype) vc, int index)                     \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "get");                                                \
     if (index < 0 || index >= vc->_.len) {                                        \
@@ -196,7 +196,7 @@ vtype VectorFn(vtype, get)(Vector(vtype) vc, int index)                         
     return vc->_.v[index];                                                        \
 }                                                                                 \
                                                                                   \
-vtype *VectorFn(vtype, getref)(Vector(vtype) vc, int index)                       \
+vtype *VectorFn(vtype, getref)(const Vector(vtype) vc, int index)                 \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "getref");                                             \
     if (index < 0 || index >= vc->_.len) {                                        \
@@ -206,19 +206,19 @@ vtype *VectorFn(vtype, getref)(Vector(vtype) vc, int index)                     
     return &(vc->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
-vtype VectorFn(vtype, front)(Vector(vtype) vc)                                    \
+vtype VectorFn(vtype, front)(const Vector(vtype) vc)                              \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "front");                                              \
     return *(vc->begin(vc));                                                      \
 }                                                                                 \
                                                                                   \
-vtype VectorFn(vtype, back)(Vector(vtype) vc)                                     \
+vtype VectorFn(vtype, back)(const Vector(vtype) vc)                               \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "back");                                               \
     return *(vc->rbegin(vc));                                                     \
 }                                                                                 \
                                                                                   \
-vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                   \
+vtype *VectorFn(vtype, begin)(const Vector(vtype) vc)                             \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "begin");                                              \
     if (0 >= vc->_.len) {                                                         \
@@ -228,12 +228,12 @@ vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                 
     return &(vc->_.v[0]);                                                         \
 }                                                                                 \
                                                                                   \
-vtype *VectorFn(vtype, end)(Vector(vtype) vc)                                     \
+vtype *VectorFn(vtype, end)(const Vector(vtype) vc)                               \
 {                                                                                 \
     return vc->begin(vc) + vc->length(vc);                                        \
 }                                                                                 \
                                                                                   \
-vtype *VectorFn(vtype, rbegin)(Vector(vtype) vc)                                  \
+vtype *VectorFn(vtype, rbegin)(const Vector(vtype) vc)                            \
 {                                                                                 \
     int index = vc->_.len -1;                                                     \
     VECTOR_NOT_NULLPTR(vc, "rbegin");                                             \
@@ -244,7 +244,7 @@ vtype *VectorFn(vtype, rbegin)(Vector(vtype) vc)                                
     return &(vc->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
-vtype *VectorFn(vtype, next)(Vector(vtype) vc, vtype *curr)                       \
+vtype *VectorFn(vtype, next)(const Vector(vtype) vc, vtype *curr)                 \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "next");                                               \
     if (!curr) return vc->begin(vc);                                              \
@@ -253,7 +253,7 @@ vtype *VectorFn(vtype, next)(Vector(vtype) vc, vtype *curr)                     
         return curr;                                                              \
     return NULL;                                                                  \
 }                                                                                 \
-vtype *VectorFn(vtype, rnext)(Vector(vtype) vc, vtype *curr)                      \
+vtype *VectorFn(vtype, rnext)(const Vector(vtype) vc, vtype *curr)                \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "rnext");                                              \
     if (!curr) return vc->rbegin(vc);                                             \
@@ -327,7 +327,7 @@ vtype VectorFn(vtype, erase)(Vector(vtype) vc, int index)                       
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
-Vector(vtype) VectorFn(vtype, clone)(Vector(vtype) vc)                            \
+Vector(vtype) VectorFn(vtype, clone)(const Vector(vtype) vc)                      \
 {                                                                                 \
      VECTOR_NOT_NULLPTR(vc, "clone");                                             \
      Vector(vtype) vec = VectorFn(vtype, new)();                                  \
