@@ -1,4 +1,4 @@
-#include "../include/tlib/queue.h"
+#include "../include/queue.h"
 
 QUEUE_DECLARE(int);
 QUEUE_DEFINE(int);

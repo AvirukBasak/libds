@@ -1,4 +1,4 @@
-#include "../include/tlib/stack.h"
+#include "../include/stack.h"
 
 STACK_DECLARE(int);
 STACK_DEFINE(int);
