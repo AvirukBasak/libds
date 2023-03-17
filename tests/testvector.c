@@ -3,6 +3,7 @@
 VECTOR_DECLARE(int);
 VECTOR_DEFINE(int);
 
+// pointers need to be aliased before using in a vector type
 typedef char* str_t;
 
 typedef struct {
