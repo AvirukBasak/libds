@@ -78,14 +78,14 @@ int main() {
     vc2->free(&vc2);
 
     // creating a vector of Persons
-    Vector(Person) vcp = VectorFn(Person, new)();
-    vcp->push(vcp, (Person) { 56, "Bob" });
-    vcp->push(vcp, (Person) { 21, "Nana" });
-    vcp->push(vcp, (Person) { 12, "Joe" });
-    vcp->push(vcp, (Person) { 34, "Peter" });
-    vcp->push(vcp, (Person) { 17, "Lily" });
-    vcp->push(vcp, (Person) { 67, "Jenny" });
-
+    Vector(Person) vcp = VectorFn(Person, from)(6, (Person[6]) {
+        (Person) { 56, "Bob"   },
+        (Person) { 21, "Nana"  },
+        (Person) { 12, "Joe"   },
+        (Person) { 34, "Peter" },
+        (Person) { 17, "Lily"  },
+        (Person) { 67, "Jenny" }
+    });
     printf("\nvector of structs\n");
     printf("vcp = {\n");
     VECTOR_FOREACH(vcp, printf("    %d, %s\n", value->m, value->n));
