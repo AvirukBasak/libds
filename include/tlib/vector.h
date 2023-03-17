@@ -94,12 +94,15 @@ struct Vector(vtype) {                                                          
     vtype         (*front)   (Vector(vtype) vc);                                  \
     vtype         (*back)    (Vector(vtype) vc);                                  \
     vtype*        (*begin)   (Vector(vtype) vc);                                  \
+    vtype*        (*end)     (Vector(vtype) vc);                                  \
     vtype*        (*rbegin)  (Vector(vtype) vc);                                  \
     vtype*        (*next)    (Vector(vtype) vc, vtype *curr);                     \
     vtype*        (*rnext)   (Vector(vtype) vc, vtype *curr);                     \
     bool          (*set)     (Vector(vtype) vc, int index, vtype val);            \
     bool          (*push)    (Vector(vtype) vc, vtype val);                       \
     vtype         (*pop)     (Vector(vtype) vc);                                  \
+    bool          (*insert)  (Vector(vtype) vc, int index, vtype val);            \
+    vtype         (*erase)   (Vector(vtype) vc, int index);                       \
     Vector(vtype) (*clone)   (Vector(vtype) vc);                                  \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, cmpfn_t func);                    \
     Vector(vtype) (*reverse) (Vector(vtype) vc);                                  \
@@ -120,12 +123,15 @@ vtype*        VectorFn(vtype, getref)  (Vector(vtype) vc, int index);           
 vtype         VectorFn(vtype, front)   (Vector(vtype) vc);                        \
 vtype         VectorFn(vtype, back)    (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, begin)   (Vector(vtype) vc);                        \
+vtype*        VectorFn(vtype, end)     (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, rbegin)  (Vector(vtype) vc);                        \
 vtype*        VectorFn(vtype, next)    (Vector(vtype) vc, vtype *curr);           \
 vtype*        VectorFn(vtype, rnext)   (Vector(vtype) vc, vtype *curr);           \
 bool          VectorFn(vtype, set)     (Vector(vtype) vc, int index, vtype val);  \
 bool          VectorFn(vtype, push)    (Vector(vtype) vc, vtype val);             \
 vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                        \
+bool          VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);  \
+vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int index);             \
 Vector(vtype) VectorFn(vtype, clone)   (Vector(vtype) vc);                        \
 Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, cmpfn_t func);          \
 Vector(vtype) VectorFn(vtype, reverse) (Vector(vtype) vc);
@@ -153,12 +159,15 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     vc->front   = VectorFn(vtype, front);                                         \
     vc->back    = VectorFn(vtype, back);                                          \
     vc->begin   = VectorFn(vtype, begin);                                         \
+    vc->end     = VectorFn(vtype, end);                                           \
     vc->rbegin  = VectorFn(vtype, rbegin);                                        \
     vc->next    = VectorFn(vtype, next);                                          \
     vc->rnext   = VectorFn(vtype, rnext);                                         \
     vc->set     = VectorFn(vtype, set);                                           \
     vc->push    = VectorFn(vtype, push);                                          \
     vc->pop     = VectorFn(vtype, pop);                                           \
+    vc->insert  = VectorFn(vtype, insert);                                        \
+    vc->erase   = VectorFn(vtype, erase);                                         \
     vc->clone   = VectorFn(vtype, clone);                                         \
     vc->qsort   = VectorFn(vtype, qsort);                                         \
     vc->reverse = VectorFn(vtype, reverse);                                       \
@@ -219,6 +228,11 @@ vtype *VectorFn(vtype, begin)(Vector(vtype) vc)                                 
     return &(vc->_.v[0]);                                                         \
 }                                                                                 \
                                                                                   \
+vtype *VectorFn(vtype, end)(Vector(vtype) vc)                                     \
+{                                                                                 \
+    return vc->begin(vc) + vc->length(vc);                                        \
+}                                                                                 \
+                                                                                  \
 vtype *VectorFn(vtype, rbegin)(Vector(vtype) vc)                                  \
 {                                                                                 \
     int index = vc->_.len -1;                                                     \
@@ -235,7 +249,7 @@ vtype *VectorFn(vtype, next)(Vector(vtype) vc, vtype *curr)                     
     VECTOR_NOT_NULLPTR(vc, "next");                                               \
     if (!curr) return vc->begin(vc);                                              \
     curr++;                                                                       \
-    if (vc->begin(vc) < curr && curr <= vc->rbegin(vc))                           \
+    if (vc->begin(vc) <= curr && curr <= vc->rbegin(vc))                          \
         return curr;                                                              \
     return NULL;                                                                  \
 }                                                                                 \
@@ -244,7 +258,7 @@ vtype *VectorFn(vtype, rnext)(Vector(vtype) vc, vtype *curr)                    
     VECTOR_NOT_NULLPTR(vc, "rnext");                                              \
     if (!curr) return vc->rbegin(vc);                                             \
     curr--;                                                                       \
-    if (vc->begin(vc) <= curr && curr < vc->rbegin(vc))                           \
+    if (vc->begin(vc) <= curr && curr <= vc->rbegin(vc))                          \
         return curr;                                                              \
     return NULL;                                                                  \
 }                                                                                 \
@@ -274,6 +288,41 @@ vtype VectorFn(vtype, pop)(Vector(vtype) vc)                                    
 {                                                                                 \
      VECTOR_NOT_NULLPTR(vc, "pop");                                               \
      vtype retv = *vc->rbegin(vc);                                                \
+     vc->_.len--;                                                                 \
+     return retv;                                                                 \
+}                                                                                 \
+                                                                                  \
+bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)              \
+{                                                                                 \
+    VECTOR_NOT_NULLPTR(vc, "insert");                                             \
+    if (index >= vc->length(vc)) {                                                \
+        vc->push(vc, val);                                                        \
+        return true;                                                              \
+    }                                                                             \
+    vc->push(vc, vc->back(vc));                                                   \
+    vtype *p = vc->begin(vc) + index;                                             \
+    vtype *r = vc->rbegin(vc);                                                    \
+    while (r > p) {                                                               \
+        vtype *tmp = vc->rnext(vc, r);                                            \
+        *r = *tmp;                                                                \
+        r = tmp;                                                                  \
+    }                                                                             \
+    *p = val;                                                                     \
+    return true;                                                                  \
+}                                                                                 \
+                                                                                  \
+vtype VectorFn(vtype, erase)(Vector(vtype) vc, int index)                         \
+{                                                                                 \
+     VECTOR_NOT_NULLPTR(vc, "erase");                                             \
+     if (index >= vc->length(vc))                                                 \
+         return vc->pop(vc);                                                      \
+     vtype *p = vc->getref(vc, index);                                            \
+     vtype retv = *p;                                                             \
+     while (p < vc->rbegin(vc)) {                                                 \
+         vtype *tmp = vc->next(vc, p);                                            \
+         *p = *tmp;                                                               \
+         p = tmp;                                                                 \
+     }                                                                            \
      vc->_.len--;                                                                 \
      return retv;                                                                 \
 }                                                                                 \
