@@ -337,10 +337,44 @@ Vector(vtype) VectorFn(vtype, clone)(const Vector(vtype) vc)                    
      return vec;                                                                  \
 }                                                                                 \
                                                                                   \
+void VectorFn(vtype, swap)(void *x, void *y, size_t size) {                       \
+    void *tmp = malloc(size);                                                     \
+    memcpy(tmp, x, size);                                                         \
+    memcpy(x, y, size);                                                           \
+    memcpy(y, tmp, size);                                                         \
+    free(tmp);                                                                    \
+}                                                                                 \
+                                                                                  \
+void VectorFn(vtype, qsort_generic)(void *base, size_t nmemb, size_t size, VectorCmpFnT(vtype) compar) {     \
+    char *pbase = base;                                                                                      \
+    if (nmemb <= 1) {                                                                                        \
+        return;                                                                                              \
+    }                                                                                                        \
+    int pivot_idx = rand() % nmemb;                                                                          \
+    void *pivot = pbase + pivot_idx * size;                                                                  \
+    VectorFn(vtype, swap)(pivot, pbase + (nmemb - 1) * size, size);                                          \
+    int i = 0, j = nmemb - 2;                                                                                \
+    while (i <= j) {                                                                                         \
+        while (i <= j && compar(*(vtype*)(pbase +i * size), *(vtype*)(pbase + (nmemb -1) * size)) <= 0) {    \
+            i++;                                                                                             \
+        }                                                                                                    \
+        while (j >= i && compar(*(vtype*)(pbase +j * size), *(vtype*)(pbase + (nmemb -1) * size)) >= 0) {    \
+            j--;                                                                                             \
+        }                                                                                                    \
+        if (i < j) {                                                                                         \
+            VectorFn(vtype, swap)(pbase + i * size, pbase + j * size, size);                                 \
+        }                                                                                                    \
+    }                                                                                                        \
+    VectorFn(vtype, swap)(pbase + i * size, pbase + (nmemb - 1) * size, size);                               \
+    VectorFn(vtype, qsort_generic)(base, i, size, compar);                                                   \
+    VectorFn(vtype, qsort_generic)(pbase + i * size + size, nmemb - i - 1, size, compar);                    \
+}                                                                                                            \
+                                                                                  \
 Vector(vtype) VectorFn(vtype, qsort)(Vector(vtype) vc, VectorCmpFnT(vtype) f)     \
 {                                                                                 \
     VECTOR_NOT_NULLPTR(vc, "qsort");                                              \
-     return vc;                                                                   \
+    VectorFn(vtype, qsort_generic)(vc->_.v, vc->_.len, sizeof(vtype), f);         \
+    return vc;                                                                    \
 }                                                                                 \
                                                                                   \
 Vector(vtype) VectorFn(vtype, reverse)(Vector(vtype) vc)                          \
