@@ -79,6 +79,7 @@
     }                                                                             \
 })
 
+#undef STACK_DECLARE
 /**
  * Generates function prototype definitions and typedefs for the Stack.
  * vtype should be a primary datatype or typdefed (aliased) pointer/struct.
@@ -91,16 +92,17 @@ typedef struct Stack(vtype) *Stack(vtype);                                      
                                                                                   \
 struct Stack(vtype) {                                                             \
     void          (*free)    (Stack(vtype) *st_ptr);                              \
-    size_t        (*length)  (Stack(vtype) st);                                   \
-    bool          (*isempty) (Stack(vtype) st);                                   \
-    vtype*        (*begin)   (Stack(vtype) st);                                   \
-    vtype*        (*rbegin)  (Stack(vtype) st);                                   \
-    vtype*        (*next)    (Stack(vtype) st, vtype *curr);                      \
-    vtype*        (*rnext)   (Stack(vtype) st, vtype *curr);                      \
+    size_t        (*length)  (const Stack(vtype) st);                             \
+    bool          (*isempty) (const Stack(vtype) st);                             \
+    vtype*        (*begin)   (const Stack(vtype) st);                             \
+    vtype*        (*end)     (const Stack(vtype) st);                             \
+    vtype*        (*rbegin)  (const Stack(vtype) st);                             \
+    vtype*        (*next)    (const Stack(vtype) st, vtype *curr);                \
+    vtype*        (*rnext)   (const Stack(vtype) st, vtype *curr);                \
     bool          (*push)    (Stack(vtype) st, vtype val);                        \
-    vtype         (*top)     (Stack(vtype) st);                                   \
+    vtype         (*top)     (const Stack(vtype) st);                             \
     vtype         (*pop)     (Stack(vtype) st);                                   \
-    Stack(vtype)  (*clone)   (Stack(vtype) st);                                   \
+    Stack(vtype)  (*clone)   (const Stack(vtype) st);                             \
     /** private data members, do not modify */                                    \
     struct {                                                                      \
         vtype *v;                                                                 \
@@ -111,17 +113,19 @@ struct Stack(vtype) {                                                           
                                                                                   \
 Stack(vtype)  StackFn(vtype, new)();                                              \
 void          StackFn(vtype, free)    (Stack(vtype) *st_ptr);                     \
-size_t        StackFn(vtype, length)  (Stack(vtype) st);                          \
-bool          StackFn(vtype, isempty) (Stack(vtype) st);                          \
-vtype*        StackFn(vtype, begin)   (Stack(vtype) st);                          \
-vtype*        StackFn(vtype, rbegin)  (Stack(vtype) st);                          \
-vtype*        StackFn(vtype, next)    (Stack(vtype) st, vtype *curr);             \
-vtype*        StackFn(vtype, rnext)   (Stack(vtype) st, vtype *curr);             \
+size_t        StackFn(vtype, length)  (const Stack(vtype) st);                    \
+bool          StackFn(vtype, isempty) (const Stack(vtype) st);                    \
+vtype*        StackFn(vtype, begin)   (const Stack(vtype) st);                    \
+vtype*        StackFn(vtype, end)     (const Stack(vtype) st);                    \
+vtype*        StackFn(vtype, rbegin)  (const Stack(vtype) st);                    \
+vtype*        StackFn(vtype, next)    (const Stack(vtype) st, vtype *curr);       \
+vtype*        StackFn(vtype, rnext)   (const Stack(vtype) st, vtype *curr);       \
 bool          StackFn(vtype, push)    (Stack(vtype) st, vtype val);               \
-vtype         StackFn(vtype, top)     (Stack(vtype) st);                          \
+vtype         StackFn(vtype, top)     (const Stack(vtype) st);                    \
 vtype         StackFn(vtype, pop)     (Stack(vtype) st);                          \
-Stack(vtype)  StackFn(vtype, clone)   (Stack(vtype) st);
+Stack(vtype)  StackFn(vtype, clone)   (const Stack(vtype) st);
 
+#undef STACK_DEFINE
 /**
  * Defines the chosen Stack from template: generates the necessary function definitions
  * vtype should be a primary datatype or typdefed (aliased) pointer/struct
@@ -141,6 +145,7 @@ Stack(vtype) StackFn(vtype, new)()                                              
     st->length  = StackFn(vtype, length);                                         \
     st->isempty = StackFn(vtype, isempty);                                        \
     st->begin   = StackFn(vtype, begin);                                          \
+    st->end     = StackFn(vtype, end);                                            \
     st->rbegin  = StackFn(vtype, rbegin);                                         \
     st->next    = StackFn(vtype, next);                                           \
     st->rnext   = StackFn(vtype, rnext);                                          \
@@ -151,19 +156,19 @@ Stack(vtype) StackFn(vtype, new)()                                              
     return st;                                                                    \
 }                                                                                 \
                                                                                   \
-size_t StackFn(vtype, length)(Stack(vtype) st)                                    \
+size_t StackFn(vtype, length)(const Stack(vtype) st)                              \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "length");                                              \
     return st->_.len;                                                             \
 }                                                                                 \
                                                                                   \
-bool StackFn(vtype, isempty)(Stack(vtype) st)                                     \
+bool StackFn(vtype, isempty)(const Stack(vtype) st)                               \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "isempty");                                             \
     return !(st->_.len);                                                          \
 }                                                                                 \
                                                                                   \
-vtype *StackFn(vtype, begin)(Stack(vtype) st)                                     \
+vtype *StackFn(vtype, begin)(const Stack(vtype) st)                               \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "begin");                                               \
     if (0 >= st->_.len) {                                                         \
@@ -173,7 +178,12 @@ vtype *StackFn(vtype, begin)(Stack(vtype) st)                                   
     return &(st->_.v[0]);                                                         \
 }                                                                                 \
                                                                                   \
-vtype *StackFn(vtype, rbegin)(Stack(vtype) st)                                    \
+vtype *StackFn(vtype, end)(const Stack(vtype) st)                                 \
+{                                                                                 \
+    return st->begin(st) + st->_.len;                                             \
+}                                                                                 \
+                                                                                  \
+vtype *StackFn(vtype, rbegin)(const Stack(vtype) st)                              \
 {                                                                                 \
     int index = st->_.len -1;                                                     \
     STACK_NOT_NULLPTR(st, "rbegin");                                              \
@@ -184,7 +194,7 @@ vtype *StackFn(vtype, rbegin)(Stack(vtype) st)                                  
     return &(st->_.v[index]);                                                     \
 }                                                                                 \
                                                                                   \
-vtype *StackFn(vtype, next)(Stack(vtype) st, vtype *curr)                         \
+vtype *StackFn(vtype, next)(const Stack(vtype) st, vtype *curr)                   \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "next");                                                \
     if (!curr) return st->begin(st);                                              \
@@ -193,7 +203,7 @@ vtype *StackFn(vtype, next)(Stack(vtype) st, vtype *curr)                       
         return curr;                                                              \
     return NULL;                                                                  \
 }                                                                                 \
-vtype *StackFn(vtype, rnext)(Stack(vtype) st, vtype *curr)                        \
+vtype *StackFn(vtype, rnext)(const Stack(vtype) st, vtype *curr)                  \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "rnext");                                               \
     if (!curr) return st->rbegin(st);                                             \
@@ -214,7 +224,7 @@ bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                           
     return true;                                                                  \
 }                                                                                 \
                                                                                   \
-vtype StackFn(vtype, top)(Stack(vtype) st)                                        \
+vtype StackFn(vtype, top)(const Stack(vtype) st)                                  \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "top");                                                 \
     return *st->rbegin(st);                                                       \
@@ -228,7 +238,7 @@ vtype StackFn(vtype, pop)(Stack(vtype) st)                                      
      return retv;                                                                 \
 }                                                                                 \
                                                                                   \
-Stack(vtype) StackFn(vtype, clone)(Stack(vtype) st)                               \
+Stack(vtype) StackFn(vtype, clone)(const Stack(vtype) st)                         \
 {                                                                                 \
      STACK_NOT_NULLPTR(st, "clone");                                              \
      Stack(vtype) stk = StackFn(vtype, new)();                                    \

@@ -257,7 +257,7 @@ vtype *VectorFn(vtype, begin)(const Vector(vtype) vc)                           
                                                                                                       \
 vtype *VectorFn(vtype, end)(const Vector(vtype) vc)                                                   \
 {                                                                                                     \
-    return vc->begin(vc) + vc->length(vc);                                                            \
+    return vc->begin(vc) + vc->_.len;                                                                 \
 }                                                                                                     \
                                                                                                       \
 vtype *VectorFn(vtype, rbegin)(const Vector(vtype) vc)                                                \

@@ -11,7 +11,6 @@ typedef struct {
     char *n;
 } Person;
 
-
 VECTOR_DECLARE(str_t);
 VECTOR_DEFINE(str_t);
 
