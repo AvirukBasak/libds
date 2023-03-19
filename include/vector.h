@@ -113,7 +113,7 @@ struct Vector(vtype) {                                                          
     bool          (*push)    (Vector(vtype) vc, vtype val);                                           \
     vtype         (*pop)     (Vector(vtype) vc);                                                      \
     bool          (*insert)  (Vector(vtype) vc, int index, vtype val);                                \
-    vtype         (*erase)   (Vector(vtype) vc, int index);                                           \
+    vtype         (*erase)   (Vector(vtype) vc, int from, int count);                                 \
     vtype*        (*find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
     Vector(vtype) (*clone)   (const Vector(vtype) vc);                                                \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                               \
@@ -145,7 +145,7 @@ bool          VectorFn(vtype, set)     (Vector(vtype) vc, int index, vtype val);
 bool          VectorFn(vtype, push)    (Vector(vtype) vc, vtype val);                                 \
 vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                                            \
 bool          VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);                      \
-vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int index);                                 \
+vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int from, int count);                       \
 vtype*        VectorFn(vtype, find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
 Vector(vtype) VectorFn(vtype, clone)   (const Vector(vtype) vc);                                      \
 Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                     \
@@ -339,19 +339,27 @@ bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)            
     return true;                                                                                      \
 }                                                                                                     \
                                                                                                       \
-vtype VectorFn(vtype, erase)(Vector(vtype) vc, int index)                                             \
+vtype VectorFn(vtype, erase)(Vector(vtype) vc, int from, int count)                                   \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "erase");                                                                  \
-    if (index >= (int) vc->_.len)                                                                     \
-        return vc->pop(vc);                                                                           \
-    vtype *p = vc->getref(vc, index);                                                                 \
-    vtype retv = *p;                                                                                  \
-    while (p < vc->rbegin(vc)) {                                                                      \
-        vtype *tmp = vc->next(vc, p);                                                                 \
-        *p = *tmp;                                                                                    \
-        p = tmp;                                                                                      \
+    if (from >= (int) vc->_.len) {                                                                    \
+        fprintf(stderr, "vector: erase(): index out of bounds: %d\n", from);                          \
+        abort();                                                                                      \
     }                                                                                                 \
-    vc->_.len--;                                                                                      \
+    vtype *p = vc->getref(vc, from);                                                                  \
+    if (p + count >= vc->end(vc)) {                                                                   \
+        fprintf(stderr, "vector: erase(): count out of bounds: %d\n", count);                         \
+        abort();                                                                                      \
+    }                                                                                                 \
+    vtype *q = p + count;                                                                             \
+    vtype retv = *p;                                                                                  \
+    while (p < q && q < vc->end(vc)) {                                                                \
+        retv = *p;                                                                                    \
+        *p = *q;                                                                                      \
+        p = vc->next(vc, p);                                                                          \
+        q = vc->next(vc, q);                                                                          \
+    }                                                                                                 \
+    vc->_.len -= count;                                                                               \
     return retv;                                                                                      \
 }                                                                                                     \
                                                                                                       \

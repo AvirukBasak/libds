@@ -56,9 +56,13 @@ int main() {
     printf("}\n");
 
     vc2->reverse(vc2);
-    vc2->erase(vc2, 4);
-    vc2->erase(vc2, 0);
-    vc2->erase(vc2, 13);
+    vc2->erase(vc2, 4, 1);
+    vc2->erase(vc2, 0, 1);
+    vc2->erase(vc2, 2, 2);
+
+    printf("vc2 = { ");
+    VECTOR_FOREACH(vc2, printf("%d ", *value));
+    printf("}\n");
 
     vc2->qsort(vc2, int_asc_compfn);
 
@@ -88,7 +92,7 @@ int main() {
         (Person) { 12, "Joe"   },
         (Person) { 34, "Peter" },
         (Person) { 17, "Lily"  },
-        (Person) { 67, "Jenny" }
+        (Person) { 67, "Jenny" },
     });
     printf("\nvector of structs\n");
     printf("vcp = {\n");
