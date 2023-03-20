@@ -6,9 +6,9 @@ Build with `make`.
 Copy files from `target/`.
 
 ## Demo
-- [`vectortest.c`](tests/vectortest.c)
-- [`stacktest.c`](tests/stacktest.c)
-- [`queuetest.c`](tests/queuetest.c)
+- [`testvector.c`](tests/testvector.c)
+- [`teststack.c`](tests/teststack.c)
+- [`testqueue.c`](tests/testqueue.c)
 
 ## Library
 ### Example usage
