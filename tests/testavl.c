@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "libavl.h"
+#include "avl/libavl.h"
 
 typedef AVL map_t;
 

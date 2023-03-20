@@ -68,8 +68,11 @@ $(DBG_OBJECTS): $(SOURCES) $(HEADERS)
 $(DBG_TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(DBG_OBJECTS)
 	ar rcs $(DBG_TARGET) $(BUILD_DIR)/*-dbg.$(OBJEXT)
 
-## make lib headers
+## build libraries
+$(LIBRARIES):
+	@cd $(LIB_DIR) && $(MAKE) $(LIBRARIES)
 
+## make lib headers
 $(TARGET_DIR)/%.$(HEADEREXT): $(INCLUDE_DIR)/%.$(HEADEREXT)
 	@cp $^ $@
 	$(info make $@)
