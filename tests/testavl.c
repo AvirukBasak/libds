@@ -20,7 +20,7 @@ bool map_insert(map_t *mp, int id, char *name);
 char *map_search(map_t *mp, int id);
 char *map_remove(map_t *mp, int id);
 
-int main()
+void testavl()
 {
     map_t *mp = map_new();
     map_insert(mp, 45, "Jonathan");

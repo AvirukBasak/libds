@@ -72,6 +72,10 @@ $(DBG_TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(DBG_OBJECTS)
 $(LIBRARIES):
 	@cd $(LIB_DIR) && $(MAKE) $(LIBRARIES)
 
+## build libraries
+$(DBG_LIBRARIES):
+	@cd $(LIB_DIR) && $(MAKE) $(DBG_LIBRARIES)
+
 ## make lib headers
 $(TARGET_DIR)/%.$(HEADEREXT): $(INCLUDE_DIR)/%.$(HEADEREXT)
 	@cp $^ $@
@@ -99,6 +103,7 @@ $(BUILD_DIR):
 
 $(TARGET_DIR):
 	@mkdir -p $(TARGET_DIR)/avl
+	@mkdir -p $(TARGET_DIR)/ctl
 
 ## cleanup
 

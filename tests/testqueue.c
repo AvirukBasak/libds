@@ -3,7 +3,7 @@
 QUEUE_DECLARE(int);
 QUEUE_DEFINE(int);
 
-int main() {
+void testqueue() {
     Queue(int) qu = QueueFn(int, new)();
     qu->push(qu, 56);
     qu->push(qu, 38);
@@ -26,5 +26,4 @@ int main() {
     QUEUE_FOREACH(qu, printf("%d ", *value));
     printf("}\n");
     qu->free(&qu);
-    return 0;
 }
