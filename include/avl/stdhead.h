@@ -2,9 +2,9 @@
 #define __STDHEAD_H__
 
 #include <stddef.h>    // type: size_t
+#include <stdbool.h>   // type: bool, macro: true, false
 
 typedef void *ptr_t;
-typedef _Bool bool;
 
 typedef signed char i8_t;
 typedef signed short i16_t;
@@ -18,9 +18,6 @@ typedef unsigned long long ui64_t;
 
 typedef float f32_t;
 typedef double f64_t;
-
-#define true  (1)
-#define false (0)
 
 #define MAX(a,b) (a>b?a:b)
 #define MIN(a,b) (a<b?a:b)

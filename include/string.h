@@ -3,7 +3,9 @@
 
 #include "vector.h"
 
-typedef struct String String;
+typedef struct String *String;
+
+VECTOR_DECLARE(String);
 
 struct String {
     char* arr;
