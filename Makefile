@@ -46,10 +46,11 @@ TESTSRC        := $(shell find $(TEST_DIR)/ -name "*."$(SRCEXT))
 
 rel: $(TARGET)
 
-OBJECTS        := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-rel.$(OBJEXT), $(shell find $(SRC_DIR)/ -name "*."$(SRCEXT)))
+OBJECTS        := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-rel.$(OBJEXT), $(SOURCES))
 
 $(OBJECTS): $(SOURCES) $(HEADERS)
 	@cd $(SRC_DIR) && $(MAKE)
+	$(info to)
 
 ## target for static lib
 $(TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(OBJECTS)
@@ -59,7 +60,7 @@ $(TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(OBJECTS)
 
 dbg: $(DBG_TARGET)
 
-DBG_OBJECTS    := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-dbg.$(OBJEXT), $(shell find $(SRC_DIR)/ -name "*."$(SRCEXT)))
+DBG_OBJECTS    := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-dbg.$(OBJEXT), $(SOURCES))
 
 $(DBG_OBJECTS): $(SOURCES) $(HEADERS)
 	@cd $(SRC_DIR) && $(MAKE) dbg

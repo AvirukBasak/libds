@@ -13,7 +13,7 @@ INCLUDE_DIR    := ../include
 
 ## compiler options
 
-LIB_NAME       := ds
+LIB_NAME       := libds
 
 CC             := gcc
 CFLAGS         := -Wall -Ofast
@@ -29,41 +29,41 @@ HEADERS        := $(shell find $(INCLUDE_DIR)/ -name "*."$(HEADEREXT))
 SUB_DIRS       := $(shell find -type f -name Makefile | sed 's/Makefile//g')
 SUB_DIR_DBG    := $(SUB_DIRS)
 
-AVLSRC         := $(SRC_DIR)/avl/avl.$(SRCEXT) $(SRC_DIR)/avl/balancer.$(SRCEXT) $(SRC_DIR)/avl/helperfn.$(SRCEXT)
+AVLSRC         := $(shell find avl/ -name "*."$(SRCEXT))
 
 ## release build
 
-OBJECTS        := $(patsubst %.$(SRCEXT), %-rel.$(OBJEXT), $(wildcard *.$(SRCEXT)))
-AVLOBJ         := $(BUILD_DIR)/avl-rel.$(OBJEXT) $(BUILD_DIR)/balancer-rel.$(OBJEXT) $(BUILD_DIR)/helperfn-rel.$(OBJEXT)
+AVL_OBJ        := $(patsubst avl/%.$(SRCEXT), %-rel.$(OBJEXT), $(AVLSRC))
+OBJECTS        := $(patsubst %.$(SRCEXT), %-rel.$(OBJEXT), $(wildcard *.$(SRCEXT))) $(AVL_OBJ)
 
-rel: mkdirp $(AVLOBJ) $(OBJECTS) cpobj
+rel: mkdirp $(OBJECTS) cpobj
 
-$(AVLOBJ): $(AVLSRC)
-	@cd avl/ && $(MAKE)
+%-rel.$(OBJEXT): avl/%.$(SRCEXT) $(HEADERS)
+	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 %-rel.$(OBJEXT): %.$(SRCEXT) $(HEADERS)
 	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 ## build subdirs
-# $(SUB_DIRS): FORCE \
-	@$(MAKE) -C $@
+# $(SUB_DIRS): FORCE
+# @$(MAKE) -C $@
 
 ## debug build
 
-DBG_OBJECTS    := $(patsubst %.$(SRCEXT), %-dbg.$(OBJEXT), $(wildcard *.$(SRCEXT)))
-DBG_AVLOBJ     := $(BUILD_DIR)/avl-dbg.$(OBJEXT) $(BUILD_DIR)/balancer-dbg.$(OBJEXT) $(BUILD_DIR)/helperfn-dbg.$(OBJEXT) 
+AVL_DBGOBJ     := $(patsubst avl/%.$(SRCEXT), %-dbg.$(OBJEXT), $(AVLSRC))
+DBG_OBJECTS    := $(patsubst %.$(SRCEXT), %-dbg.$(OBJEXT), $(wildcard *.$(SRCEXT))) $(AVL_DBGOBJ)
 
-dbg: mkdirp $(DBG_AVLOBJ) $(DBG_OBJECTS) cpobj
+dbg: mkdirp $(DBG_OBJECTS) cpobj
 
-$(DBG_AVLOBJ): $(AVLSRC)
-	@cd avl/ && $(MAKE) dbg
+%-dbg.$(OBJEXT): avl/%.$(SRCEXT) $(HEADERS)
+	$(CC) $(CDBGFLAGS) $(INCLUDE) -c -o $@ $<
 
 %-dbg.$(OBJEXT): %.$(SRCEXT) $(HEADERS)
 	$(CC) $(CDBGFLAGS) $(INCLUDE) -c -o $@ $<
 
 ## build subdirs
-# $(SUB_DIR_DBG): FORCE \
-	@$(MAKE) -C $@ dbg
+# $(SUB_DIR_DBG): FORCE
+#     @$(MAKE) -C $@ dbg
 
 cpobj:
 	@cp *.$(OBJEXT) $(BUILD_DIR)
@@ -72,11 +72,9 @@ mkdirp:
 	@mkdir -p $(BUILD_DIR)
 
 clean:
-	@cd avl && $(MAKE) clean
 	@rm -f *.$(OBJEXT)
 
 cleaner: clean
-	@cd avl && $(MAKE) cleaner
 	@rm -f $(BUILD_DIR)/*.$(OBJEXT)
 
-# FORCE:
+## FORCE:
