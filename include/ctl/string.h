@@ -90,8 +90,8 @@ String String_from(cstr_t cstr);
  * @param str The string
  * @param action{int i, vtype *value} A code block
  */
-#define STRING_RFOREACH(str, action) ({                                 \
-    STRING_NOT_NULLPTR(str, "RFOREACH");                                \
+#define STRING_RFOREACH(str, action) ({                                \
+    STRING_NOT_NULLPTR(str, "RFOREACH");                               \
     VECTOR_FOREACH(str->_.vec, {                                       \
         action;                                                        \
     });                                                                \
