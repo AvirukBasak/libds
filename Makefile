@@ -34,7 +34,6 @@ DBG_LIBRARIES  := $(LIB_DIR)/libdummy-dbg.a
 TARGET_NAME    := lib$(LIB_NAME)
 TARGET         := $(TARGET_DIR)/$(TARGET_NAME).a
 DBG_TARGET     := $(TARGET_DIR)/$(TARGET_NAME)-dbg.a
-HDR_TARGET     := $(TARGET_DIR)/$(TARGET_NAME).$(HEADEREXT)
 
 TLIB_TARGET    := $(patsubst $(INCLUDE_DIR)/%.$(HEADEREXT), $(TARGET_DIR)/%.$(HEADEREXT), $(shell find $(INCLUDE_DIR)/ -name "*."$(HEADEREXT)))
 
@@ -46,27 +45,26 @@ TESTSRC        := $(shell find $(TEST_DIR)/ -name "*."$(SRCEXT))
 
 rel: $(TARGET)
 
-OBJECTS        := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-rel.$(OBJEXT), $(SOURCES))
+OBJECTS        := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-rel.$(OBJEXT), $(wildcard $(SRC_DIR)/*.$(SRCEXT)))
 
 $(OBJECTS): $(SOURCES) $(HEADERS)
 	@cd $(SRC_DIR) && $(MAKE)
-	$(info to)
 
 ## target for static lib
-$(TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(OBJECTS)
+$(TARGET): $(REQ_DIRS) $(TLIB_TARGET) $(OBJECTS)
 	ar rcs $(TARGET) $(BUILD_DIR)/*-rel.$(OBJEXT)
 
 ## debug build
 
 dbg: $(DBG_TARGET)
 
-DBG_OBJECTS    := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-dbg.$(OBJEXT), $(SOURCES))
+DBG_OBJECTS    := $(patsubst $(SRC_DIR)/%.$(SRCEXT), $(BUILD_DIR)/%-dbg.$(OBJEXT), $(wildcard $(SRC_DIR)/*.$(SRCEXT)))
 
 $(DBG_OBJECTS): $(SOURCES) $(HEADERS)
 	@cd $(SRC_DIR) && $(MAKE) dbg
 
 ## target for static debug lib
-$(DBG_TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(DBG_OBJECTS)
+$(DBG_TARGET): $(REQ_DIRS) $(TLIB_TARGET) $(DBG_OBJECTS)
 	ar rcs $(DBG_TARGET) $(BUILD_DIR)/*-dbg.$(OBJEXT)
 
 ## build libraries
@@ -120,6 +118,5 @@ cleaner:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(TARGET)
 	@rm -rf $(DBG_TARGET)
-	@rm -rf $(HDR_TARGET)
 	@rm -rf $(TLIB_TARGET)
 	@rm -rf $(TARGET_DIR)
