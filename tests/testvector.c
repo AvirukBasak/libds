@@ -36,7 +36,7 @@ int persn_asc_compfn(Person a, Person b) {
     return str_asc_compfn(a.n, b.n);
 }
 
-int main() {
+void teststack() {
     Vector(int) vc1 = VectorFn(int, new)();
     vc1->insert(vc1, 0, 45);
     vc1->push(vc1, 56);
@@ -114,5 +114,4 @@ int main() {
     printf("}\n");
 
     vcp->free(&vcp);
-    return 0;
 }

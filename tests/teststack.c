@@ -11,7 +11,7 @@ typedef struct {
 STACK_DECLARE(Person);
 STACK_DEFINE(Person);
 
-int main() {
+void teststack() {
     Stack(int) st1 = StackFn(int, new)();
     st1->push(st1, 56);
     st1->push(st1, 38);
@@ -40,5 +40,4 @@ int main() {
         printf("pop = %s\n", st2->pop(st2).n);
     }
     st2->free(&st2);
-    return 0;
 }
