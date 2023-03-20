@@ -1,4 +1,4 @@
-#include "../include/stack.h"
+#include "stack.h"
 
 STACK_DECLARE(int);
 STACK_DEFINE(int);

@@ -1,7 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "tlib/vector.h"
+#include "vector.h"
 
 typedef struct String String;
 

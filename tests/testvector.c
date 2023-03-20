@@ -1,4 +1,4 @@
-#include "../include/vector.h"
+#include "vector.h"
 
 VECTOR_DECLARE(int);
 VECTOR_DEFINE(int);

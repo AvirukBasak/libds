@@ -36,7 +36,7 @@ TARGET         := $(TARGET_DIR)/$(TARGET_NAME).a
 DBG_TARGET     := $(TARGET_DIR)/$(TARGET_NAME)-dbg.a
 HDR_TARGET     := $(TARGET_DIR)/$(TARGET_NAME).$(HEADEREXT)
 
-TLIB_TARGET    := $(patsubst $(INCLUDE_DIR)/tlib/%.$(HEADEREXT), $(TARGET_DIR)/tlib/%.$(HEADEREXT), $(shell find $(INCLUDE_DIR)/tlib/ -name "*."$(HEADEREXT)))
+TLIB_TARGET    := $(patsubst $(INCLUDE_DIR)/%.$(HEADEREXT), $(TARGET_DIR)/%.$(HEADEREXT), $(shell find $(INCLUDE_DIR)/ -name "*."$(HEADEREXT)))
 
 SOURCES        := $(shell find $(SRC_DIR)/ -name "*."$(SRCEXT))
 HEADERS        := $(shell find $(INCLUDE_DIR)/ -name "*."$(HEADEREXT))
@@ -70,23 +70,14 @@ $(DBG_TARGET): $(REQ_DIRS) $(HDR_TARGET) $(TLIB_TARGET) $(DBG_OBJECTS)
 
 ## make lib headers
 
-$(HDR_TARGET): $(INCLUDE_DIR)/$(TARGET_NAME).$(HEADEREXT)
-	@cp $(INCLUDE_DIR)/$(TARGET_NAME).$(HEADEREXT) $(HDR_TARGET)
-	$(info make $(HDR_TARGET))
-
-define newline
-
-
-endef
-
-$(TLIB_TARGET): $(shell find $(INCLUDE_DIR)/tlib/ -name "*."$(HEADEREXT))
-	@cp -r $(INCLUDE_DIR)/tlib $(TARGET_DIR)
-	$(foreach path, $(TLIB_TARGET), @echo make $(path) $(newline))
+$(TARGET_DIR)/%.$(HEADEREXT): $(INCLUDE_DIR)/%.$(HEADEREXT)
+	@cp $^ $@
+	$(info make $@)
 
 ## testing static lib
 
 test: $(LIBRARIES) $(TARGET) $(TESTSRC)
-	@$(CC) $(CFLAGS) -I $(TARGET_DIR) $(TEST_DIR)/test.$(SRCEXT) -o $(TEST_DIR)/test-rel.out -L$(TARGET_DIR) -l$(LIB_NAME) $(LIB)
+	@$(CC) $(CFLAGS) -I $(TARGET_DIR) $(TEST_DIR)/*.$(SRCEXT) -o $(TEST_DIR)/test-rel.out -L$(TARGET_DIR) -l$(LIB_NAME) $(LIB)
 	./$(TEST_DIR)/test-rel.out $(ARGS)
 
 ## test in debug mode in gdb
@@ -98,13 +89,13 @@ test-sanitize: $(TEST_DIR)/test-dbg.out
 	@ASAN_OPTIONS=detect_leaks=1 ./$(TEST_DIR)/test-dbg.out $(ARGS)
 
 $(TEST_DIR)/test-dbg.out: $(DBG_LIBRARIES) $(DBG_TARGET) $(TESTSRC)
-	@$(CC) $(CDBGFLAGS) -I $(TARGET_DIR) $(TEST_DIR)/test.$(SRCEXT) -o $(TEST_DIR)/test-dbg.out -L$(TARGET_DIR) -l$(LIB_NAME)-dbg $(DBG_LIB)
+	@$(CC) $(CDBGFLAGS) -I $(TARGET_DIR) $(TEST_DIR)/*.$(SRCEXT) -o $(TEST_DIR)/test-dbg.out -L$(TARGET_DIR) -l$(LIB_NAME)-dbg $(DBG_LIB)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
 $(TARGET_DIR):
-	@mkdir -p $(TARGET_DIR)/tlib
+	@mkdir -p $(TARGET_DIR)/avl
 
 ## cleanup
 
