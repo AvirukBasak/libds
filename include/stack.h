@@ -28,6 +28,9 @@
     }                                                                             \
 })
 
+#undef Stack
+#undef StackFn
+
 #define Stack(vtype) Stack_##vtype
 #define StackFn(vtype, func) Stack_##vtype##_##func
 
