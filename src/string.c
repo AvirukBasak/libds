@@ -198,28 +198,24 @@ char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
     // TODO: impl find
-    return NULL;
 }
 
 char *String_rfind(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rfind");
     // TODO: impl rfind
-    return NULL;
 }
 
 int String_index(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "index");
     // TODO: impl index
-    return -1;
 }
 
 int String_rindex(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rindex");
     // TODO: impl rindex
-    return -1;
 }
 
 bool String_equals(const String str, cstr_t cs)
@@ -242,13 +238,22 @@ int String_compare(const String str, cstr_t cs)
 // TODO: impl remaining functions
 
 String String_substring(const String str, int from, int to)
-{}
+{
+    STRING_NOT_NULLPTR(str, "substring");
+    // TODO: impl substring
+}
 
 String String_substr(const String str, int from, int count)
-{}
+{
+    STRING_NOT_NULLPTR(str, "substr");
+    // TODO: impl substr
+}
 
 Vector(String) String_split(const String str, cstr_t del)
-{}
+{
+    STRING_NOT_NULLPTR(str, "split");
+    // TODO: impl split
+}
 
 // TODO: impl remaining functions
 
