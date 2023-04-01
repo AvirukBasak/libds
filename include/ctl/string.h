@@ -29,10 +29,10 @@ struct String {
     int             (*rindex)    (const String str, cstr_t cs);
     bool            (*equals)    (const String str, cstr_t cs);
     int             (*compare)   (const String str, cstr_t cs);
-    int             (*replace)   (const String str, cstr_t target, cstr_t rep);
     String          (*substring) (const String str, int from, int to);
     String          (*substr)    (const String str, int from, int count);
     Vector(String)  (*split)     (const String str, cstr_t del);
+    String          (*replace)   (String str, cstr_t target, cstr_t rep);
     bool            (*append)    (String str, char ch);
     bool            (*concat)    (String str, cstr_t cs);
     bool            (*insert)    (String str, int index, cstr_t cs);

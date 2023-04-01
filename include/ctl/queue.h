@@ -105,7 +105,7 @@ struct Queue(vtype) {                                                           
     vtype*        (*rbegin)  (const Queue(vtype) qu);                             \
     vtype*        (*next)    (const Queue(vtype) qu, vtype *curr);                \
     vtype*        (*rnext)   (const Queue(vtype) qu, vtype *curr);                \
-    bool          (*push)    (Queue(vtype) qu, vtype val);                        \
+    Queue(vtype)  (*push)    (Queue(vtype) qu, vtype val);                        \
     vtype         (*front)   (const Queue(vtype) qu);                             \
     vtype         (*pop)     (Queue(vtype) qu);                                   \
     Queue(vtype)  (*clone)   (const Queue(vtype) qu);                             \
@@ -128,7 +128,7 @@ vtype*        QueueFn(vtype, end)     (const Queue(vtype) qu);                  
 vtype*        QueueFn(vtype, rbegin)  (const Queue(vtype) qu);                    \
 vtype*        QueueFn(vtype, next)    (const Queue(vtype) qu, vtype *curr);       \
 vtype*        QueueFn(vtype, rnext)   (const Queue(vtype) qu, vtype *curr);       \
-bool          QueueFn(vtype, push)    (Queue(vtype) qu, vtype val);               \
+Queue(vtype)  QueueFn(vtype, push)    (Queue(vtype) qu, vtype val);               \
 vtype         QueueFn(vtype, front)   (const Queue(vtype) qu);                    \
 vtype         QueueFn(vtype, pop)     (Queue(vtype) qu);                          \
 Queue(vtype)  QueueFn(vtype, clone)   (const Queue(vtype) qu);
@@ -233,7 +233,7 @@ vtype *QueueFn(vtype, rnext)(const Queue(vtype) qu, vtype *curr)                
     return NULL;                                                                  \
 }                                                                                 \
                                                                                   \
-bool QueueFn(vtype, push)(Queue(vtype) qu, vtype val)                             \
+Queue(vtype) QueueFn(vtype, push)(Queue(vtype) qu, vtype val)                     \
 {                                                                                 \
     QUEUE_NOT_NULLPTR(qu, "push");                                                \
     if (qu->_.rer >= qu->_.cap) {                                                 \
@@ -241,7 +241,7 @@ bool QueueFn(vtype, push)(Queue(vtype) qu, vtype val)                           
         qu->_.v = realloc(qu->_.v, sizeof(vtype) * qu->_.cap);                    \
     }                                                                             \
     qu->_.v[qu->_.rer++] = val;                                                   \
-    return true;                                                                  \
+    return qu;                                                                    \
 }                                                                                 \
                                                                                   \
 vtype QueueFn(vtype, front)(const Queue(vtype) qu)                                \

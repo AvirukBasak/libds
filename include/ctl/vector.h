@@ -116,11 +116,11 @@ struct Vector(vtype) {                                                          
     vtype*        (*rbegin)  (const Vector(vtype) vc);                                                \
     vtype*        (*next)    (const Vector(vtype) vc, vtype *curr);                                   \
     vtype*        (*rnext)   (const Vector(vtype) vc, vtype *curr);                                   \
-    bool          (*set)     (Vector(vtype) vc, int index, vtype val);                                \
-    bool          (*push)    (Vector(vtype) vc, vtype val);                                           \
+    Vector(vtype) (*set)     (Vector(vtype) vc, int index, vtype val);                                \
+    Vector(vtype) (*push)    (Vector(vtype) vc, vtype val);                                           \
     vtype         (*pop)     (Vector(vtype) vc);                                                      \
-    bool          (*insert)  (Vector(vtype) vc, int index, vtype val);                                \
-    vtype         (*erase)   (Vector(vtype) vc, int from, int count);                                 \
+    Vector(vtype) (*insert)  (Vector(vtype) vc, int index, vtype val);                                \
+    Vector(vtype) (*erase)   (Vector(vtype) vc, int from, int count);                                 \
     vtype*        (*find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
     Vector(vtype) (*clone)   (const Vector(vtype) vc);                                                \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                               \
@@ -148,11 +148,11 @@ vtype*        VectorFn(vtype, end)     (const Vector(vtype) vc);                
 vtype*        VectorFn(vtype, rbegin)  (const Vector(vtype) vc);                                      \
 vtype*        VectorFn(vtype, next)    (const Vector(vtype) vc, vtype *curr);                         \
 vtype*        VectorFn(vtype, rnext)   (const Vector(vtype) vc, vtype *curr);                         \
-bool          VectorFn(vtype, set)     (Vector(vtype) vc, int index, vtype val);                      \
-bool          VectorFn(vtype, push)    (Vector(vtype) vc, vtype val);                                 \
+Vector(vtype) VectorFn(vtype, set)     (Vector(vtype) vc, int index, vtype val);                      \
+Vector(vtype) VectorFn(vtype, push)    (Vector(vtype) vc, vtype val);                                 \
 vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                                            \
-bool          VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);                      \
-vtype         VectorFn(vtype, erase)   (Vector(vtype) vc, int from, int count);                       \
+Vector(vtype) VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);                      \
+Vector(vtype) VectorFn(vtype, erase)   (Vector(vtype) vc, int from, int count);                       \
 vtype*        VectorFn(vtype, find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
 Vector(vtype) VectorFn(vtype, clone)   (const Vector(vtype) vc);                                      \
 Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                     \
@@ -297,7 +297,7 @@ vtype *VectorFn(vtype, rnext)(const Vector(vtype) vc, vtype *curr)              
     return NULL;                                                                                      \
 }                                                                                                     \
                                                                                                       \
-bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)                                     \
+Vector(vtype) VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)                            \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "set");                                                                    \
     if (index < 0 || index >= (int) vc->_.len) {                                                      \
@@ -305,10 +305,10 @@ bool VectorFn(vtype, set)(Vector(vtype) vc, int index, vtype val)               
         abort();                                                                                      \
     }                                                                                                 \
     vc->_.v[index] = val;                                                                             \
-    return true;                                                                                      \
+    return vc;                                                                                        \
 }                                                                                                     \
                                                                                                       \
-bool VectorFn(vtype, push)(Vector(vtype) vc, vtype val)                                               \
+Vector(vtype) VectorFn(vtype, push)(Vector(vtype) vc, vtype val)                                      \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "push");                                                                   \
     if (vc->_.len >= vc->_.cap) {                                                                     \
@@ -316,7 +316,7 @@ bool VectorFn(vtype, push)(Vector(vtype) vc, vtype val)                         
         vc->_.v = realloc(vc->_.v, sizeof(vtype) * vc->_.cap);                                        \
     }                                                                                                 \
     vc->_.v[vc->_.len++] = val;                                                                       \
-    return true;                                                                                      \
+    return vc;                                                                                        \
 }                                                                                                     \
                                                                                                       \
 vtype VectorFn(vtype, pop)(Vector(vtype) vc)                                                          \
@@ -327,12 +327,12 @@ vtype VectorFn(vtype, pop)(Vector(vtype) vc)                                    
     return retv;                                                                                      \
 }                                                                                                     \
                                                                                                       \
-bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)                                  \
+Vector(vtype) VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)                         \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "insert");                                                                 \
     if (index >= (int) vc->_.len) {                                                                   \
         vc->push(vc, val);                                                                            \
-        return true;                                                                                  \
+        return vc;                                                                                    \
     }                                                                                                 \
     vc->push(vc, vc->back(vc));                                                                       \
     vtype *p = vc->begin(vc) + index;                                                                 \
@@ -343,10 +343,10 @@ bool VectorFn(vtype, insert)(Vector(vtype) vc, int index, vtype val)            
         r = tmp;                                                                                      \
     }                                                                                                 \
     *p = val;                                                                                         \
-    return true;                                                                                      \
+    return vc;                                                                                        \
 }                                                                                                     \
                                                                                                       \
-vtype VectorFn(vtype, erase)(Vector(vtype) vc, int from, int count)                                   \
+Vector(vtype) VectorFn(vtype, erase)(Vector(vtype) vc, int from, int count)                           \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "erase");                                                                  \
     if (from >= (int) vc->_.len) {                                                                    \
@@ -359,15 +359,13 @@ vtype VectorFn(vtype, erase)(Vector(vtype) vc, int from, int count)             
         abort();                                                                                      \
     }                                                                                                 \
     vtype *q = p + count;                                                                             \
-    vtype retv = *p;                                                                                  \
     while (p < q && q < vc->end(vc)) {                                                                \
-        retv = *p;                                                                                    \
         *p = *q;                                                                                      \
         p = vc->next(vc, p);                                                                          \
         q = vc->next(vc, q);                                                                          \
     }                                                                                                 \
     vc->_.len -= count;                                                                               \
-    return retv;                                                                                      \
+    return vc;                                                                                        \
 }                                                                                                     \
                                                                                                       \
 vtype *VectorFn(vtype, find)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)                \

@@ -25,10 +25,10 @@ int             String_index       (const String str, cstr_t cs);
 int             String_rindex      (const String str, cstr_t cs);
 bool            String_equals      (const String str, cstr_t cs);
 int             String_compare     (const String str, cstr_t cs);
-int             String_replace     (const String str, cstr_t target, cstr_t rep);
 String          String_substring   (const String str, int from, int to);
 String          String_substr      (const String str, int from, int count);
 Vector(String)  String_split       (const String str, cstr_t del);
+String          String_replace     (String str, cstr_t target, cstr_t rep);
 bool            String_append      (String str, char ch);
 bool            String_concat      (String str, cstr_t cs);
 bool            String_insert      (String str, int index, cstr_t cs);
@@ -63,10 +63,10 @@ String String_new()
     str->rindex        = String_rindex;
     str->equals        = String_equals;
     str->compare       = String_compare;
-    str->replace       = String_replace;
     str->substring     = String_substring;
     str->substr        = String_substr;
     str->split         = String_split;
+    str->replace       = String_replace;
     str->append        = String_append;
     str->concat        = String_concat;
     str->insert        = String_insert;
@@ -239,7 +239,7 @@ int String_compare(const String str, cstr_t cs)
     return strcmp(cstr(str), cs);
 }
 
-int String_replace(const String str, cstr_t target, cstr_t rep)
+String String_replace(const String str, cstr_t target, cstr_t rep)
 {}
 
 String String_substring(const String str, int from, int to)

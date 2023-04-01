@@ -109,7 +109,7 @@ struct Stack(vtype) {                                                           
     vtype*        (*rbegin)  (const Stack(vtype) st);                             \
     vtype*        (*next)    (const Stack(vtype) st, vtype *curr);                \
     vtype*        (*rnext)   (const Stack(vtype) st, vtype *curr);                \
-    bool          (*push)    (Stack(vtype) st, vtype val);                        \
+    Stack(vtype)  (*push)    (Stack(vtype) st, vtype val);                        \
     vtype         (*top)     (const Stack(vtype) st);                             \
     vtype         (*pop)     (Stack(vtype) st);                                   \
     Stack(vtype)  (*clone)   (const Stack(vtype) st);                             \
@@ -130,7 +130,7 @@ vtype*        StackFn(vtype, end)     (const Stack(vtype) st);                  
 vtype*        StackFn(vtype, rbegin)  (const Stack(vtype) st);                    \
 vtype*        StackFn(vtype, next)    (const Stack(vtype) st, vtype *curr);       \
 vtype*        StackFn(vtype, rnext)   (const Stack(vtype) st, vtype *curr);       \
-bool          StackFn(vtype, push)    (Stack(vtype) st, vtype val);               \
+Stack(vtype)  StackFn(vtype, push)    (Stack(vtype) st, vtype val);               \
 vtype         StackFn(vtype, top)     (const Stack(vtype) st);                    \
 vtype         StackFn(vtype, pop)     (Stack(vtype) st);                          \
 Stack(vtype)  StackFn(vtype, clone)   (const Stack(vtype) st);
@@ -223,7 +223,7 @@ vtype *StackFn(vtype, rnext)(const Stack(vtype) st, vtype *curr)                
     return NULL;                                                                  \
 }                                                                                 \
                                                                                   \
-bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                             \
+Stack(vtype) StackFn(vtype, push)(Stack(vtype) st, vtype val)                     \
 {                                                                                 \
     STACK_NOT_NULLPTR(st, "push");                                                \
     if (st->_.len >= st->_.cap) {                                                 \
@@ -231,7 +231,7 @@ bool StackFn(vtype, push)(Stack(vtype) st, vtype val)                           
         st->_.v = realloc(st->_.v, sizeof(vtype) * st->_.cap);                    \
     }                                                                             \
     st->_.v[st->_.len++] = val;                                                   \
-    return true;                                                                  \
+    return st;                                                                    \
 }                                                                                 \
                                                                                   \
 vtype StackFn(vtype, top)(const Stack(vtype) st)                                  \
