@@ -223,10 +223,21 @@ int String_rindex(const String str, cstr_t cs)
 }
 
 bool String_equals(const String str, cstr_t cs)
-{}
+{
+    STRING_NOT_NULLPTR(str, "equals");
+    if (len(str) != strlen(cs))
+        return false;
+    if (*cstr(str) != *cs)
+        return false;
+    return !strcmp(cstr(str), cs);
+}
 
 int String_compare(const String str, cstr_t cs)
-{}
+{
+    STRING_NOT_NULLPTR(str, "compare");
+    if (*cstr(str) == *cs) return 0;
+    return !strcmp(cstr(str), cs);
+}
 
 int String_replace(const String str, cstr_t target, cstr_t rep)
 {}

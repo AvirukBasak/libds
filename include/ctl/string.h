@@ -53,6 +53,13 @@ struct String {
 String String_new();
 String String_from(cstr_t cs);
 
+#undef len
+/**
+ * Return container length
+ * @param o Container object
+ */
+#define len(o) (o->length(o))
+
 #undef cstr
 /**
  * Return a c string i.e. char*
