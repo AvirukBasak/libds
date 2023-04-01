@@ -29,10 +29,10 @@ String          String_substring   (const String str, int from, int to);
 String          String_substr      (const String str, int from, int count);
 Vector(String)  String_split       (const String str, cstr_t del);
 String          String_replace     (String str, cstr_t target, cstr_t rep);
-bool            String_append      (String str, char ch);
-bool            String_concat      (String str, cstr_t cs);
-bool            String_insert      (String str, int index, cstr_t cs);
-char            String_erase       (String str, int from, int count);
+String          String_append      (String str, char ch);
+String          String_concat      (String str, cstr_t cs);
+String          String_insert      (String str, int index, cstr_t cs);
+String          String_erase       (String str, int from, int count);
 String          String_clone       (const String str);
 String          String_reverse     (String str);
 
@@ -253,7 +253,7 @@ Vector(String) String_split(const String str, cstr_t del)
 
 // TODO: impl remaining functions
 
-bool String_append(String str, char ch)
+String String_append(String str, char ch)
 {
     STRING_NOT_NULLPTR(str, "append");
     if (str->_.len >= str->_.cap) {
@@ -261,10 +261,10 @@ bool String_append(String str, char ch)
         str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     str->_.v[str->_.len++] = ch;
-    return true;
+    return str;
 }                             
 
-bool String_concat(String str, cstr_t cs)
+String String_concat(String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "concat");
     const size_t len = strlen(cs);
@@ -273,15 +273,15 @@ bool String_concat(String str, cstr_t cs)
         str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     memcpy(&str->_.v[str->_.len++], cs, len);
-    return true;
+    return str;
 }
 
-bool String_insert(String str, int index, cstr_t cs)
+String String_insert(String str, int index, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "insert");
     if (index >= (int) str->_.len) {
         str->concat(str, cs);
-        return true;
+        return str;
     }
     const size_t len = strlen(cs);
     char *ptr = str->getref(str, index);
@@ -294,10 +294,10 @@ bool String_insert(String str, int index, cstr_t cs)
         q = str->rnext(str, q);
     }
     memcpy(ptr, cs, len);
-    return true;
+    return str;
 }
 
-char String_erase(String str, int from, int count)
+String String_erase(String str, int from, int count)
 {
     STRING_NOT_NULLPTR(str, "erase");
     if (from >= (int) str->_.len) {
@@ -310,15 +310,13 @@ char String_erase(String str, int from, int count)
         abort();
     }
     char *q = p + count;
-    char retv = *p;
     while (p < q && q < str->end(str)) {
-        retv = *p;
         *p = *q;
         p = str->next(str, p);
         q = str->next(str, q);
     }
     str->_.len -= count;
-    return retv;
+    return str;
 }
 
 String String_clone(const String str)

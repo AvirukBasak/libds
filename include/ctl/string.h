@@ -33,10 +33,10 @@ struct String {
     String          (*substr)    (const String str, int from, int count);
     Vector(String)  (*split)     (const String str, cstr_t del);
     String          (*replace)   (String str, cstr_t target, cstr_t rep);
-    bool            (*append)    (String str, char ch);
-    bool            (*concat)    (String str, cstr_t cs);
-    bool            (*insert)    (String str, int index, cstr_t cs);
-    char            (*erase)     (String str, int from, int count);
+    String          (*append)    (String str, char ch);
+    String          (*concat)    (String str, cstr_t cs);
+    String          (*insert)    (String str, int index, cstr_t cs);
+    String          (*erase)     (String str, int from, int count);
     String          (*clone)     (const String str);
     String          (*reverse)   (String str);
     /** private data members, do not modify */
