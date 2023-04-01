@@ -32,9 +32,10 @@ struct String {
     String          (*substring) (const String str, int from, int to);
     String          (*substr)    (const String str, int from, int count);
     Vector(String)  (*split)     (const String str, cstr_t del);
-    String          (*replace)   (String str, cstr_t target, cstr_t rep);
+    String          (*replace)   (String str, cstr_t needle, cstr_t rep);
     String          (*append)    (String str, char ch);
     String          (*concat)    (String str, cstr_t cs);
+    String          (*nconcat)   (String str, cstr_t cs, size_t n);
     String          (*insert)    (String str, int index, cstr_t cs);
     String          (*erase)     (String str, int from, int count);
     String          (*clone)     (const String str);

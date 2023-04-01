@@ -28,9 +28,10 @@ int             String_compare     (const String str, cstr_t cs);
 String          String_substring   (const String str, int from, int to);
 String          String_substr      (const String str, int from, int count);
 Vector(String)  String_split       (const String str, cstr_t del);
-String          String_replace     (String str, cstr_t target, cstr_t rep);
+String          String_replace     (String str, cstr_t needle, cstr_t rep);
 String          String_append      (String str, char ch);
 String          String_concat      (String str, cstr_t cs);
+String          String_nconcat     (String str, cstr_t cs, size_t n);
 String          String_insert      (String str, int index, cstr_t cs);
 String          String_erase       (String str, int from, int count);
 String          String_clone       (const String str);
@@ -69,6 +70,7 @@ String String_new()
     str->replace       = String_replace;
     str->append        = String_append;
     str->concat        = String_concat;
+    str->nconcat       = String_nconcat;
     str->insert        = String_insert;
     str->erase         = String_erase;
     str->clone         = String_clone;
@@ -192,8 +194,6 @@ bool String_set(String str, int index, char ch)
     return true;
 }
 
-// TODO: impl remaining functions
-
 char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
@@ -239,8 +239,7 @@ int String_compare(const String str, cstr_t cs)
     return strcmp(cstr(str), cs);
 }
 
-String String_replace(const String str, cstr_t target, cstr_t rep)
-{}
+// TODO: impl remaining functions
 
 String String_substring(const String str, int from, int to)
 {}
@@ -252,6 +251,32 @@ Vector(String) String_split(const String str, cstr_t del)
 {}
 
 // TODO: impl remaining functions
+
+String String_replace(String str, cstr_t needle, cstr_t rep)
+{
+    String res = String_new();
+    const char *tmp = cstr(str);
+    size_t needle_len = strlen(needle);
+    while (true) {
+        const char *p = strstr(tmp, needle);
+        if (!p) {
+            // the remaining string
+            res->concat(res, tmp);
+            break;
+        }
+        // the part upto the needle
+        res->nconcat(res, tmp, p - tmp);
+        // the replacement
+        res->concat(res, rep);
+        // adjust pointers
+        tmp = p + needle_len; 
+    }
+    // manually free the old string
+    free(str->_.v);
+    // copy attributes from res to str
+    memcpy(&str->_, &res->_, sizeof(res->_));
+    return str;
+}
 
 String String_append(String str, char ch)
 {
@@ -273,6 +298,18 @@ String String_concat(String str, cstr_t cs)
         str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     memcpy(&str->_.v[str->_.len++], cs, len);
+    return str;
+}
+
+String String_nconcat(String str, cstr_t cs, size_t n)
+{
+    STRING_NOT_NULLPTR(str, "nconcat");
+    const size_t len = strlen(cs);
+    if (str->_.len + len >= str->_.cap) {
+        str->_.cap = (int) (2 * str->_.cap) + len;
+        str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+    }
+    memcpy(&str->_.v[str->_.len++], cs, n < len ? n : len);
     return str;
 }
 
