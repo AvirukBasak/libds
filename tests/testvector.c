@@ -69,7 +69,7 @@ void testvector() {
     VECTOR_FOREACH(vc2, printf("%d ", *value));
     printf("}\n");
 
-    printf("\nlen = %zu\n", vc1->length(vc1));
+    printf("\nlen = %zu\n", len(vc1));
     while (!vc1->isempty(vc1)) {
         printf("vc1 = { ");
         VECTOR_FOREACH(vc1, printf("%d ", *value));

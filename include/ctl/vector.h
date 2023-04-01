@@ -36,6 +36,13 @@
 #define VectorFn(vtype, func) Vector_##vtype##_##func
 #define VectorCmpFnT(vtype) Vector_##vtype##_##cmpfunc_t
 
+#undef len
+/**
+ * Return container length
+ * @param o Container object
+ */
+#define len(o) (o->length(o))
+
 #undef VECTOR_NOT_NULLPTR
 /**
  * Return ptr if not null else abort

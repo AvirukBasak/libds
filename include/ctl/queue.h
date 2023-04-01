@@ -26,6 +26,13 @@
 #undef Queue
 #undef QueueFn
 
+#undef len
+/**
+ * Return container length
+ * @param o Container object
+ */
+#define len(o) (o->length(o))
+
 #define Queue(vtype) Queue_##vtype
 #define QueueFn(vtype, func) Queue_##vtype##_##func
 

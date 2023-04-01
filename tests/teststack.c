@@ -18,7 +18,7 @@ void teststack() {
     st1->push(st1, 90);
     st1->push(st1, 23);
     st1->push(st1, 14);
-    printf("len = %zu\n", st1->length(st1));
+    printf("len = %zu\n", len(st1));
     while (!st1->isempty(st1)) {
         printf("st1 = { ");
         STACK_FOREACH(st1, printf("%d ", *value));

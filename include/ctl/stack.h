@@ -34,6 +34,13 @@
 #define Stack(vtype) Stack_##vtype
 #define StackFn(vtype, func) Stack_##vtype##_##func
 
+#undef len
+/**
+ * Return container length
+ * @param o Container object
+ */
+#define len(o) (o->length(o))
+
 #undef STACK_NOT_NULLPTR
 /**
  * Return ptr if not null else abort
