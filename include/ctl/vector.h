@@ -100,7 +100,7 @@ struct Vector(vtype) {                                                          
     void          (*free)    (Vector(vtype) *vc_ptr);                                                 \
     size_t        (*length)  (const Vector(vtype) vc);                                                \
     bool          (*isempty) (const Vector(vtype) vc);                                                \
-    vtype         (*get)     (const Vector(vtype) vc, int index);                                     \
+    vtype         (*at)      (const Vector(vtype) vc, int index);                                     \
     vtype*        (*getref)  (const Vector(vtype) vc, int index);                                     \
     vtype         (*front)   (const Vector(vtype) vc);                                                \
     vtype         (*back)    (const Vector(vtype) vc);                                                \
@@ -132,7 +132,7 @@ Vector(vtype) VectorFn(vtype, from)(int len, vtype arr[len]);                   
 void          VectorFn(vtype, free)    (Vector(vtype) *vc_ptr);                                       \
 size_t        VectorFn(vtype, length)  (const Vector(vtype) vc);                                      \
 bool          VectorFn(vtype, isempty) (const Vector(vtype) vc);                                      \
-vtype         VectorFn(vtype, get)     (const Vector(vtype) vc, int index);                           \
+vtype         VectorFn(vtype, at)      (const Vector(vtype) vc, int index);                           \
 vtype*        VectorFn(vtype, getref)  (const Vector(vtype) vc, int index);                           \
 vtype         VectorFn(vtype, front)   (const Vector(vtype) vc);                                      \
 vtype         VectorFn(vtype, back)    (const Vector(vtype) vc);                                      \
@@ -170,7 +170,7 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     vc->free    = VectorFn(vtype, free);                                                              \
     vc->length  = VectorFn(vtype, length);                                                            \
     vc->isempty = VectorFn(vtype, isempty);                                                           \
-    vc->get     = VectorFn(vtype, get);                                                               \
+    vc->at      = VectorFn(vtype, at);                                                                \
     vc->getref  = VectorFn(vtype, getref);                                                            \
     vc->front   = VectorFn(vtype, front);                                                             \
     vc->back    = VectorFn(vtype, back);                                                              \
@@ -213,11 +213,11 @@ bool VectorFn(vtype, isempty)(const Vector(vtype) vc)                           
     return !(vc->_.len);                                                                              \
 }                                                                                                     \
                                                                                                       \
-vtype VectorFn(vtype, get)(const Vector(vtype) vc, int index)                                         \
+vtype VectorFn(vtype, at)(const Vector(vtype) vc, int index)                                          \
 {                                                                                                     \
-    VECTOR_NOT_NULLPTR(vc, "get");                                                                    \
+    VECTOR_NOT_NULLPTR(vc, "at");                                                                     \
     if (index < 0 || index >= (int) vc->_.len) {                                                      \
-        fprintf(stderr, "vector: get(): index out of bounds: %d\n", index);                           \
+        fprintf(stderr, "vector: at(): index out of bounds: %d\n", index);                            \
         abort();                                                                                      \
     }                                                                                                 \
     return vc->_.v[index];                                                                            \
