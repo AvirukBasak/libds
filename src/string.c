@@ -28,6 +28,11 @@ int             String_compare     (const String str, cstr_t cs);
 String          String_substring   (const String str, int from, int to);
 String          String_substr      (const String str, int from, int count);
 Vector(String)  String_split       (const String str, cstr_t del);
+String          String_trim        (String str);
+String          String_ltrim       (String str);
+String          String_rtrim       (String str);
+String          String_lowercase   (String str);
+String          String_uppercase   (String str);
 String          String_replace     (String str, cstr_t needle, cstr_t rep);
 String          String_append      (String str, char ch);
 String          String_concat      (String str, cstr_t cs);
@@ -42,6 +47,7 @@ String String_new()
 {
     String str = STRING_NOT_NULLPTR(new(String), "new");
     str->_.v = NULL;
+    str->_._ = NULL;
     str->_.len = 0;
     str->_.cap = 0;
     str->free          = String_free;
@@ -67,6 +73,11 @@ String String_new()
     str->substring     = String_substring;
     str->substr        = String_substr;
     str->split         = String_split;
+    str->trim          = String_trim;
+    str->ltrim         = String_ltrim;
+    str->rtrim         = String_rtrim;
+    str->lowercase     = String_lowercase;
+    str->uppercase     = String_uppercase;
     str->replace       = String_replace;
     str->append        = String_append;
     str->concat        = String_concat;
@@ -82,7 +93,7 @@ String String_from(cstr_t cs)
 {
     String str = String_new();
     const size_t len = strlen(cs);
-    str->_.v = malloc(len * sizeof(char));
+    str->_._ = str->_.v = malloc(len * sizeof(char));
     memcpy(str->_.v, cs, len * sizeof(char));
     str->_.len += len;
     str->_.cap += len;
@@ -194,6 +205,8 @@ bool String_set(String str, int index, char ch)
     return true;
 }
 
+// TODO: impl remaining functions
+
 char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
@@ -217,6 +230,8 @@ int String_rindex(const String str, cstr_t cs)
     STRING_NOT_NULLPTR(str, "rindex");
     // TODO: impl rindex
 }
+
+// TODO: impl remaining functions
 
 bool String_equals(const String str, cstr_t cs)
 {
@@ -257,6 +272,53 @@ Vector(String) String_split(const String str, cstr_t del)
 
 // TODO: impl remaining functions
 
+String String_trim(String str)
+{
+    STRING_NOT_NULLPTR(str, "trim");
+    str->ltrim(str);
+    str->rtrim(str);
+    return str;
+}
+
+String String_ltrim(String str)
+{
+    STRING_NOT_NULLPTR(str, "ltrim");
+    int rm_count = 0;
+    STRING_FOREACH(str, {
+        if (*value == ' ' || *value == '\t' || *value == '\n' || *value == '\r' || *value == '\f') {
+            ++str->_.v;
+            ++rm_count;
+        } else break;
+    });
+    str->_.len -= rm_count;
+    return str;
+}
+
+String String_rtrim(String str)
+{
+    STRING_NOT_NULLPTR(str, "rtrim");
+    STRING_RFOREACH(str, {
+        if (*value == ' ' || *value == '\t' || *value == '\n' || *value == '\r' || *value == '\f') {
+            str->_.v[--str->_.len] = 0;
+        } else break;
+    });
+    return str;
+}
+
+String String_uppercase(String str)
+{
+    STRING_NOT_NULLPTR(str, "uppercase");
+    STRING_FOREACH(str, if ('a' <= *value && *value <= 'z') *value -= ('a' - 'A') );
+    return str;
+}
+
+String String_lowercase(String str)
+{
+    STRING_NOT_NULLPTR(str, "lowercase");
+    STRING_FOREACH(str, if ('A' <= *value && *value <= 'Z') *value += ('a' - 'A') );
+    return str;
+}
+
 String String_replace(String str, cstr_t needle, cstr_t rep)
 {
     String res = String_new();
@@ -277,7 +339,7 @@ String String_replace(String str, cstr_t needle, cstr_t rep)
         tmp = p + needle_len; 
     }
     // manually free the old string
-    free(str->_.v);
+    free(str->_._);
     // copy attributes from res to str
     memcpy(&str->_, &res->_, sizeof(res->_));
     return str;
@@ -288,7 +350,7 @@ String String_append(String str, char ch)
     STRING_NOT_NULLPTR(str, "append");
     if (str->_.len >= str->_.cap) {
         str->_.cap = (int) (2 * str->_.cap) +1;
-        str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     str->_.v[str->_.len++] = ch;
     return str;
@@ -300,7 +362,7 @@ String String_concat(String str, cstr_t cs)
     const size_t len = strlen(cs);
     if (str->_.len + len >= str->_.cap) {
         str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     memcpy(&str->_.v[str->_.len++], cs, len);
     return str;
@@ -312,7 +374,7 @@ String String_nconcat(String str, cstr_t cs, size_t n)
     const size_t len = strlen(cs);
     if (str->_.len + len >= str->_.cap) {
         str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     memcpy(&str->_.v[str->_.len++], cs, n < len ? n : len);
     return str;
@@ -388,7 +450,7 @@ void String_free(String *str_ptr)
 {
     STRING_NOT_NULLPTR(str_ptr, "free");
     STRING_NOT_NULLPTR(*str_ptr, "free");
-    free((*str_ptr)->_.v);
+    free((*str_ptr)->_._);
     free(*str_ptr);
     *str_ptr = NULL;
 }

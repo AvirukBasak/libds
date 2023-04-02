@@ -33,6 +33,8 @@ struct String {
     String          (*substr)    (const String str, int from, int count);
     Vector(String)  (*split)     (const String str, cstr_t del);
     String          (*trim)      (String str);
+    String          (*ltrim)     (String str);
+    String          (*rtrim)     (String str);
     String          (*lowercase) (String str);
     String          (*uppercase) (String str);
     String          (*replace)   (String str, cstr_t needle, cstr_t rep);
@@ -45,6 +47,7 @@ struct String {
     String          (*reverse)   (String str);
     /** private data members, do not modify */
     struct {
+        char *_;
         char *v;
         int len;
         int cap;

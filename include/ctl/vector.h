@@ -383,18 +383,21 @@ vtype *VectorFn(vtype, find)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vty
     VECTOR_FOREACH(vc, if (!f(val, *value)) return value);                                            \
     return NULL;                                                                                      \
 }                                                                                                     \
+                                                                                                      \
 vtype *VectorFn(vtype, rfind)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)               \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "rfind");                                                                  \
     VECTOR_RFOREACH(vc, if (!f(val, *value)) return value);                                           \
     return NULL;                                                                                      \
 }                                                                                                     \
+                                                                                                      \
 int VectorFn(vtype, index)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)                  \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "index");                                                                  \
     VECTOR_FOREACH(vc, if (!f(val, *value)) return value - vc->begin(vc));                            \
     return -1;                                                                                        \
 }                                                                                                     \
+                                                                                                      \
 int VectorFn(vtype, rindex)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)                 \
 {                                                                                                     \
     VECTOR_NOT_NULLPTR(vc, "rindex");                                                                 \
