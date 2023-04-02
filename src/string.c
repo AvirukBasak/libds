@@ -250,19 +250,26 @@ int String_compare(const String str, cstr_t cs)
     return strcmp(cstr(str), cs);
 }
 
-// TODO: impl remaining functions
-
 String String_substring(const String str, int from, int to)
 {
     STRING_NOT_NULLPTR(str, "substring");
-    // TODO: impl substring
+    String res = String_new();
+    const char *start = str->getref(str, from);
+    const int count = str->getref(str, to) - start;
+    res->nconcat(res, start, count);
+    return res;
 }
 
 String String_substr(const String str, int from, int count)
 {
     STRING_NOT_NULLPTR(str, "substr");
-    // TODO: impl substr
+    String res = String_new();
+    const char *start = str->getref(str, from);
+    res->nconcat(res, start, count);
+    return res;
 }
+
+// TODO: impl remaining functions
 
 Vector(String) String_split(const String str, cstr_t del)
 {
