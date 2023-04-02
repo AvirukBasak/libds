@@ -93,10 +93,11 @@ String String_from(cstr_t cs)
 {
     String str = String_new();
     const size_t len = strlen(cs);
-    str->_._ = str->_.v = malloc(len * sizeof(char));
+    str->_._ = str->_.v = malloc(len * sizeof(char) +1);
     memcpy(str->_.v, cs, len * sizeof(char));
     str->_.len += len;
     str->_.cap += len;
+    str->_.v[str->_.len] = 0;
     return str;
 }
 
@@ -271,6 +272,8 @@ String String_substr(const String str, int from, int count)
 
 // TODO: impl remaining functions
 
+VECTOR_DEFINE(String);
+
 Vector(String) String_split(const String str, cstr_t del)
 {
     STRING_NOT_NULLPTR(str, "split");
@@ -355,11 +358,12 @@ String String_replace(String str, cstr_t needle, cstr_t rep)
 String String_append(String str, char ch)
 {
     STRING_NOT_NULLPTR(str, "append");
-    if (str->_.len >= str->_.cap) {
+    if (str->_.len >= str->_.cap -1) {
         str->_.cap = (int) (2 * str->_.cap) +1;
         str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
     str->_.v[str->_.len++] = ch;
+    str->_.v[str->_.len] = 0;
     return str;
 }                             
 
@@ -367,11 +371,12 @@ String String_concat(String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "concat");
     const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap) {
+    if (str->_.len + len >= str->_.cap -1) {
         str->_.cap = (int) (2 * str->_.cap) + len;
         str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
-    memcpy(&str->_.v[str->_.len++], cs, len);
+    memcpy(&str->_.v[str->_.len += len], cs, len);
+    str->_.v[str->_.len] = 0;
     return str;
 }
 
@@ -379,11 +384,12 @@ String String_nconcat(String str, cstr_t cs, size_t n)
 {
     STRING_NOT_NULLPTR(str, "nconcat");
     const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap) {
+    if (str->_.len + len >= str->_.cap -1) {
         str->_.cap = (int) (2 * str->_.cap) + len;
         str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
-    memcpy(&str->_.v[str->_.len++], cs, n < len ? n : len);
+    memcpy(&str->_.v[str->_.len += len], cs, n < len ? n : len);
+    str->_.v[str->_.len] = 0;
     return str;
 }
 
@@ -405,6 +411,7 @@ String String_insert(String str, int index, cstr_t cs)
         q = str->rnext(str, q);
     }
     memcpy(ptr, cs, len);
+    str->_.v[str->_.len] = 0;
     return str;
 }
 
@@ -427,6 +434,7 @@ String String_erase(String str, int from, int count)
         q = str->next(str, q);
     }
     str->_.len -= count;
+    str->_.v[str->_.len] = 0;
     return str;
 }
 
