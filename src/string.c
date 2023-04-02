@@ -206,33 +206,39 @@ bool String_set(String str, int index, char ch)
     return true;
 }
 
-// TODO: impl remaining functions
-
 char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
-    // TODO: impl find
+    return strstr(cstr(str), cs);
 }
 
 char *String_rfind(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rfind");
-    // TODO: impl rfind
+    size_t len1 = len(str);
+    size_t len2 = strlen(cs);
+    if (len2 > len1) return NULL;
+    for (int i = len1 - len2; i >= 0; --i)
+        if (!strncmp(cstr(str) + i, cs, len2))
+            return &cstr(str)[i];
+    return NULL;
 }
 
 int String_index(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "index");
-    // TODO: impl index
+    const char *ptr = str->find(str, cs);
+    if (!ptr) return -1;
+    return ptr - cstr(str);
 }
 
 int String_rindex(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rindex");
-    // TODO: impl rindex
+    const char *ptr = str->rfind(str, cs);
+    if (!ptr) return -1;
+    return ptr - cstr(str);
 }
-
-// TODO: impl remaining functions
 
 bool String_equals(const String str, cstr_t cs)
 {
