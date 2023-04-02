@@ -106,8 +106,8 @@ void testvector() {
 
     vcp->qsort(vcp, persn_asc_compfn);
 
-    Person *p = vcp->find(vcp, (Person) { 17, "Lily" }, persn_asc_compfn);
-    if (p) printf("\nfound %d, %s\n\n", p->m, p->n);
+    int i = vcp->rindex(vcp, (Person) { 17, "Lily" }, persn_asc_compfn);
+    if (i >= 0) printf("\nfound %d, %s\n\n", vcp->at(vcp, i).m, vcp->at(vcp, i).n);
 
     printf("vcp = {\n");
     VECTOR_FOREACH(vcp, printf("    %d, %s\n", value->m, value->n));

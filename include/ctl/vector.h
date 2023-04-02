@@ -122,6 +122,9 @@ struct Vector(vtype) {                                                          
     Vector(vtype) (*insert)  (Vector(vtype) vc, int index, vtype val);                                \
     Vector(vtype) (*erase)   (Vector(vtype) vc, int from, int count);                                 \
     vtype*        (*find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
+    vtype*        (*rfind)   (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
+    int           (*index)   (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
+    int           (*rindex)  (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);              \
     Vector(vtype) (*clone)   (const Vector(vtype) vc);                                                \
     Vector(vtype) (*qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                               \
     Vector(vtype) (*reverse) (Vector(vtype) vc);                                                      \
@@ -154,6 +157,9 @@ vtype         VectorFn(vtype, pop)     (Vector(vtype) vc);                      
 Vector(vtype) VectorFn(vtype, insert)  (Vector(vtype) vc, int index, vtype val);                      \
 Vector(vtype) VectorFn(vtype, erase)   (Vector(vtype) vc, int from, int count);                       \
 vtype*        VectorFn(vtype, find)    (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
+vtype*        VectorFn(vtype, rfind)   (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
+int           VectorFn(vtype, index)   (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
+int           VectorFn(vtype, rindex)  (const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f);    \
 Vector(vtype) VectorFn(vtype, clone)   (const Vector(vtype) vc);                                      \
 Vector(vtype) VectorFn(vtype, qsort)   (Vector(vtype) vc, VectorCmpFnT(vtype) f);                     \
 Vector(vtype) VectorFn(vtype, reverse) (Vector(vtype) vc);
@@ -192,6 +198,9 @@ Vector(vtype) VectorFn(vtype, new)()                                            
     vc->insert  = VectorFn(vtype, insert);                                                            \
     vc->erase   = VectorFn(vtype, erase);                                                             \
     vc->find    = VectorFn(vtype, find);                                                              \
+    vc->rfind   = VectorFn(vtype, rfind);                                                             \
+    vc->index   = VectorFn(vtype, index);                                                             \
+    vc->rindex  = VectorFn(vtype, rindex);                                                            \
     vc->clone   = VectorFn(vtype, clone);                                                             \
     vc->qsort   = VectorFn(vtype, qsort);                                                             \
     vc->reverse = VectorFn(vtype, reverse);                                                           \
@@ -373,6 +382,24 @@ vtype *VectorFn(vtype, find)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vty
     VECTOR_NOT_NULLPTR(vc, "find");                                                                   \
     VECTOR_FOREACH(vc, if (!f(val, *value)) return value);                                            \
     return NULL;                                                                                      \
+}                                                                                                     \
+vtype *VectorFn(vtype, rfind)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)               \
+{                                                                                                     \
+    VECTOR_NOT_NULLPTR(vc, "rfind");                                                                  \
+    VECTOR_RFOREACH(vc, if (!f(val, *value)) return value);                                           \
+    return NULL;                                                                                      \
+}                                                                                                     \
+int VectorFn(vtype, index)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)                  \
+{                                                                                                     \
+    VECTOR_NOT_NULLPTR(vc, "index");                                                                  \
+    VECTOR_FOREACH(vc, if (!f(val, *value)) return value - vc->begin(vc));                            \
+    return -1;                                                                                        \
+}                                                                                                     \
+int VectorFn(vtype, rindex)(const Vector(vtype) vc, vtype val, VectorCmpFnT(vtype) f)                 \
+{                                                                                                     \
+    VECTOR_NOT_NULLPTR(vc, "rindex");                                                                 \
+    VECTOR_RFOREACH(vc, if (!f(val, *value)) return value - vc->begin(vc));                           \
+    return -1;                                                                                        \
 }                                                                                                     \
                                                                                                       \
 Vector(vtype) VectorFn(vtype, clone)(const Vector(vtype) vc)                                          \
