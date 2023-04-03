@@ -209,18 +209,18 @@ bool String_set(String str, int index, char ch)
 char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
-    return strstr(cstr(str), cs);
+    return strstr(str->_.v, cs);
 }
 
 char *String_rfind(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rfind");
-    size_t len1 = len(str);
+    size_t len1 = str->_.len;
     size_t len2 = strlen(cs);
     if (len2 > len1) return NULL;
     for (int i = len1 - len2; i >= 0; --i)
-        if (!strncmp(cstr(str) + i, cs, len2))
-            return &cstr(str)[i];
+        if (!strncmp(str->_.v + i, cs, len2))
+            return &str->_.v[i];
     return NULL;
 }
 
@@ -229,7 +229,7 @@ int String_index(const String str, cstr_t cs)
     STRING_NOT_NULLPTR(str, "index");
     const char *ptr = str->find(str, cs);
     if (!ptr) return -1;
-    return ptr - cstr(str);
+    return ptr - str->_.v;
 }
 
 int String_rindex(const String str, cstr_t cs)
@@ -237,24 +237,24 @@ int String_rindex(const String str, cstr_t cs)
     STRING_NOT_NULLPTR(str, "rindex");
     const char *ptr = str->rfind(str, cs);
     if (!ptr) return -1;
-    return ptr - cstr(str);
+    return ptr - str->_.v;
 }
 
 bool String_equals(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "equals");
-    if (len(str) != strlen(cs))
+    if (str->_.len != strlen(cs))
         return false;
-    if (*cstr(str) != *cs)
+    if (*str->_.v != *cs)
         return false;
-    return !strcmp(cstr(str), cs);
+    return !strcmp(str->_.v, cs);
 }
 
 int String_compare(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "compare");
-    if (*cstr(str) != *cs) return *cstr(str) - *cs;
-    return strcmp(cstr(str), cs);
+    if (*str->_.v != *cs) return *str->_.v - *cs;
+    return strcmp(str->_.v, cs);
 }
 
 String String_substring(const String str, int from, int to)
@@ -276,17 +276,39 @@ String String_substr(const String str, int from, int count)
     return res;
 }
 
-// TODO: impl remaining functions
-
 VECTOR_DEFINE(String);
 
 Vector(String) String_split(const String str, cstr_t del)
 {
     STRING_NOT_NULLPTR(str, "split");
-    // TODO: impl split
+    // verify if splitting is possible
+    if (str->isempty(str) || ( del && !str->find(str, del) ))
+        return NULL;
+    // create vector object
+    Vector(String) v = VectorFn(String, new)();
+    // null ptr or empty string
+    if (!del || !*del) {
+        for (int i = 0; i < str->_.len; ++i) {
+            String s = str->substring(str, i, i +1);
+            v->push(v, s);
+        }
+        return v;
+    }
+    size_t dellen = strlen(del);
+    char *start = str->begin(str),
+         *end = str->end(str),
+         *pos = NULL;
+    while (( pos = strstr(start, del) )) {
+        String s = str->substr(str, start - str->_.v, pos - start);
+        v->push(v, s);
+        start = pos + dellen;
+    }
+    if (start < end) {
+        String s = str->substr(str, start - str->_.v, end - start);
+        v->push(v, s);
+    }
+    return v;
 }
-
-// TODO: impl remaining functions
 
 String String_trim(String str)
 {
@@ -338,7 +360,7 @@ String String_lowercase(String str)
 String String_replace(String str, cstr_t needle, cstr_t rep)
 {
     String res = String_new();
-    const char *tmp = cstr(str);
+    const char *tmp = str->_.v;
     size_t needle_len = strlen(needle);
     while (true) {
         const char *p = strstr(tmp, needle);
@@ -448,7 +470,7 @@ String String_clone(const String str)
 {
     STRING_NOT_NULLPTR(str, "clone");
     String str2 = String_new();
-    str2->concat(str2, cstr(str));
+    str2->concat(str2, str->_.v);
     return str2;
 }
 
