@@ -399,12 +399,12 @@ String String_concat(String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "concat");
     const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap -1) {
+    if (str->_.len + len >= str->_.cap) {
         str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap +1);
     }
-    memcpy(&str->_.v[str->_.len += len], cs, len);
-    str->_.v[str->_.len] = 0;
+    memcpy(&str->_.v[str->_.len], cs, len);
+    str->_.v[++str->_.len] = 0;
     return str;
 }
 
@@ -412,12 +412,12 @@ String String_nconcat(String str, cstr_t cs, size_t n)
 {
     STRING_NOT_NULLPTR(str, "nconcat");
     const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap -1) {
+    if (str->_.len + len >= str->_.cap) {
         str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap +1);
     }
-    memcpy(&str->_.v[str->_.len += len], cs, n < len ? n : len);
-    str->_.v[str->_.len] = 0;
+    memcpy(&str->_.v[str->_.len], cs, n < len ? n : len);
+    str->_.v[str->_.len += len] = 0;
     return str;
 }
 
