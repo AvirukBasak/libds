@@ -42,7 +42,6 @@ String          String_erase       (String str, int from, int count);
 String          String_clone       (const String str);
 String          String_reverse     (String str);
 
-
 String String_new()
 {
     String str = STRING_NOT_NULLPTR(new(String), "new");
@@ -390,8 +389,8 @@ String String_append(String str, char ch)
         str->_.cap = (int) (2 * str->_.cap) +1;
         str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
     }
-    str->_.v[str->_.len++] = ch;
-    str->_.v[str->_.len] = 0;
+    str->_.v[str->_.len] = ch;
+    str->_.v[++str->_.len] = 0;
     return str;
 }                             
 

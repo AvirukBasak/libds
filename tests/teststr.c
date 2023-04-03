@@ -9,6 +9,8 @@ void test_split() {
 
     // call the split method with the delimiter ", "
     Vector(String) vec = str->split(str, ", ");
+    VECTOR_FOREACH( vec, printf("%s ", (*value)->_.v) );
+    printf("\n");
 
     // check that the resulting vector has three elements
     assert(len(vec) == 3);
