@@ -102,6 +102,10 @@ void test_reverse() {
 }
 
 void teststr() {
+    /* split internally uses: isempty, substring, begin, end, substr
+     * substring internally uses: getref, nconcat
+     * substr internally uses: getref, nconcat
+     */
     test_split();
     test_uppercase();
     test_lowercase();
@@ -109,9 +113,13 @@ void teststr() {
     test_rtrim();
     test_trim();
     test_replace();
+    /* insert internally uses: concat, getref, rbegin, rnext */
     test_insert();
+    /* erase internally uses: end, getref */
     test_erase();
+    /* clone internally uses: concat, next, end */
     test_clone();
+    /* reverse internally uses: begin, rbegin, next, rnext */
     test_reverse();
     printf("string: passed testcases\n");
 }
