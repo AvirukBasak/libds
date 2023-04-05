@@ -9,7 +9,14 @@ void test_replace() {
        ->replace(str, "cat", "dog");
     assert( str->equals(str, "The quick brown fox jumps over the lazy dog.") );
     str->free(&str);
+    str = String_from("The quick brown dog jumps over the lazy cat.");
+    str->replace(str, " ", "_")
+       ->replace(str, "o", "O");
+    assert( str->equals(str, "The_quick_brOwn_dOg_jumps_Over_the_lazy_cat.") );
+    str->free(&str);
 }
+
+
 
 void test_split() {
     // initialize a string to split
