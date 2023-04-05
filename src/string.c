@@ -386,10 +386,12 @@ String String_replace(String str, cstr_t needle, cstr_t rep)
         // adjust pointers
         tmp = p + needle_len; 
     }
-    // manually free the old string
+    // manually free the old char array
     free(str->_._);
     // copy attributes from res to str
     memcpy(&str->_, &res->_, sizeof(res->_));
+    // free the new struct
+    free(res);
     return str;
 }
 

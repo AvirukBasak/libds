@@ -3,6 +3,14 @@
 
 #include "ctl/string.h"
 
+void test_replace() {
+    String str = String_from("The quick brown dog jumps over the lazy cat.");
+    str->replace(str, "dog", "fox")
+       ->replace(str, "cat", "dog");
+    assert( str->equals(str, "The quick brown fox jumps over the lazy dog.") );
+    str->free(&str);
+}
+
 void test_split() {
     // initialize a string to split
     String str = String_from("apple, banana, orange");
@@ -66,5 +74,6 @@ void teststr() {
     test_ltrim();
     test_rtrim();
     test_trim();
+    test_replace();
     printf("string: passed testcases\n");
 }
