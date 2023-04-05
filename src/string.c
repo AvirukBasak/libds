@@ -327,12 +327,14 @@ String String_ltrim(String str)
 {
     STRING_NOT_NULLPTR(str, "ltrim");
     int rm_count = 0;
+    char *ptr = str->_.v;
     STRING_FOREACH(str, {
-        if (*value == ' ' || *value == '\t' || *value == '\n' || *value == '\r' || *value == '\f') {
-            ++str->_.v;
+        if (str->_.v[i] == ' ' || str->_.v[i] == '\t' || str->_.v[i] == '\n' || str->_.v[i] == '\r' || str->_.v[i] == '\f') {
+            ++ptr;
             ++rm_count;
         } else break;
     });
+    str->_.v = ptr;
     str->_.len -= rm_count;
     return str;
 }
@@ -340,11 +342,14 @@ String String_ltrim(String str)
 String String_rtrim(String str)
 {
     STRING_NOT_NULLPTR(str, "rtrim");
+    int rm_count = 0;
     STRING_RFOREACH(str, {
-        if (*value == ' ' || *value == '\t' || *value == '\n' || *value == '\r' || *value == '\f') {
-            cstr(str)[--str->_.len] = 0;
+        if (str->_.v[i] == ' ' || str->_.v[i] == '\t' || str->_.v[i] == '\n' || str->_.v[i] == '\r' || str->_.v[i] == '\f') {
+            str->_.v[i] = 0;
+            ++rm_count;
         } else break;
     });
+    str->_.len -= rm_count;
     return str;
 }
 

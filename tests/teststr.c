@@ -19,6 +19,7 @@ void test_split() {
     assert( vec->at(vec, 2)->equals(vec->at(vec, 2), "orange") );
 
     // free the vector and string
+    VECTOR_FOREACH(vec, (*value)->free(value));
     vec->free(&vec);
     str->free(&str);
 }
