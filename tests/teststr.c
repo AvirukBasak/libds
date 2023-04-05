@@ -85,6 +85,22 @@ void test_rtrim() {
     str->free(&str);
 }
 
+void test_clone() {
+    String str = String_from("  hello world   ");
+    str->trim(str);
+    String str2 = str->clone(str);
+    assert( str2->equals(str2, cstr(str)) );
+    str->free(&str);
+    str2->free(&str2);
+}
+
+void test_reverse() {
+    String str = String_from("hello world");
+    str->reverse(str);
+    assert( str->equals(str, "dlrow olleh") );
+    str->free(&str);
+}
+
 void teststr() {
     test_split();
     test_uppercase();
@@ -95,5 +111,7 @@ void teststr() {
     test_replace();
     test_insert();
     test_erase();
+    test_clone();
+    test_reverse();
     printf("string: passed testcases\n");
 }
