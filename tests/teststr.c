@@ -16,7 +16,12 @@ void test_replace() {
     str->free(&str);
 }
 
-
+void test_insert() {
+    String str = String_from("Hello world!");
+    str->insert(str, 5, ", oh accursed");
+    assert( str->equals(str, "Hello, oh accursed world!") );
+    str->free(&str);
+}
 
 void test_split() {
     // initialize a string to split
@@ -82,5 +87,6 @@ void teststr() {
     test_rtrim();
     test_trim();
     test_replace();
+    test_insert();
     printf("string: passed testcases\n");
 }

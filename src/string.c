@@ -442,9 +442,9 @@ String String_insert(String str, int index, cstr_t cs)
         return str;
     }
     const size_t len = strlen(cs);
-    char *ptr = str->getref(str, index);
-    char *p = str->rbegin(str);
     str->concat(str, cs);
+    char *ptr = str->getref(str, index);
+    char *p = str->rbegin(str) - len;
     char *q = str->rbegin(str);
     while (p < q && p >= ptr) {
         *q = *p;
