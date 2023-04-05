@@ -90,18 +90,20 @@ String String_new()
 
 String String_from(cstr_t cs)
 {
+    STRING_NOT_NULLPTR((void*) cs, "from");
     String str = String_new();
     const size_t len = strlen(cs);
     str->_._ = str->_.v = malloc(len * sizeof(char) +1);
-    memcpy(str->_.v, cs, len * sizeof(char));
+    memcpy(cstr(str), cs, len * sizeof(char));
     str->_.len += len;
-    str->_.cap += len;
-    str->_.v[str->_.len] = 0;
+    str->_.cap += len +1;
+    cstr(str)[len(str)] = 0;
     return str;
 }
 
 char *String_cstr(const String str)
 {
+    STRING_NOT_NULLPTR(str, "cstr");
     return str->_.v;
 }
 
@@ -114,27 +116,27 @@ size_t String_length(const String str)
 bool String_isempty(const String str)
 {
     STRING_NOT_NULLPTR(str, "isempty");
-    return !(str->_.len);
+    return !len(str);
 }
 
 char String_at(const String str, int index)
 {
     STRING_NOT_NULLPTR(str, "at");
-    if (index < 0 || index >= (int) str->_.len) {
+    if (index < 0 || index >= (int) len(str)) {
         fprintf(stderr, "string: at(): index out of bounds: %d\n", index);
         abort();
     }
-    return str->_.v[index];
+    return cstr(str)[index];
 }
 
 char *String_getref(const String str, int index)
 {
     STRING_NOT_NULLPTR(str, "getref");
-    if (index < 0 || index >= (int) str->_.len) {
+    if (index < 0 || index >= (int) len(str)) {
         fprintf(stderr, "string: getref(): index out of bounds: %d\n", index);
         abort();
     }
-    return &(str->_.v[index]);
+    return &(cstr(str)[index]);
 }
 
 char String_front(const String str)
@@ -152,27 +154,28 @@ char String_back(const String str)
 char *String_begin(const String str)
 {
     STRING_NOT_NULLPTR(str, "begin");
-    if (0 >= str->_.len) {
+    if (0 >= len(str)) {
         fprintf(stderr, "string: begin(): string empty\n");
         abort();
     }
-    return &(str->_.v[0]);
+    return &(cstr(str)[0]);
 }
 
 char *String_end(const String str)
 {
-    return str->begin(str) + str->_.len;
+    STRING_NOT_NULLPTR(str, "end");
+    return str->begin(str) + len(str);
 }
 
 char *String_rbegin(const String str)
 {
-    int index = str->_.len -1;
+    int index = len(str) -1;
     STRING_NOT_NULLPTR(str, "rbegin");
     if (index < 0) {
         fprintf(stderr, "string: rbegin(): string empty\n");
         abort();
     }
-    return &(str->_.v[index]);
+    return &(cstr(str)[index]);
 }
 
 char *String_next(const String str, char *curr)
@@ -197,29 +200,32 @@ char *String_rnext(const String str, char *curr)
 bool String_set(String str, int index, char ch)
 {
     STRING_NOT_NULLPTR(str, "set");
-    if (index < 0 || index >= (int) str->_.len) {
+    if (index < 0 || index >= (int) len(str)) {
         fprintf(stderr, "string: set(): index out of bounds: %d\n", index);
         abort();
     }
-    str->_.v[index] = ch;
+    cstr(str)[index] = ch;
     return true;
 }
 
 char *String_find(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "find");
-    return strstr(str->_.v, cs);
+    size_t len1 = len(str);
+    size_t len2 = strlen(cs);
+    if (len2 > len1) return NULL;
+    return strstr(cstr(str), cs);
 }
 
 char *String_rfind(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "rfind");
-    size_t len1 = str->_.len;
+    size_t len1 = len(str);
     size_t len2 = strlen(cs);
     if (len2 > len1) return NULL;
     for (int i = len1 - len2; i >= 0; --i)
-        if (!strncmp(str->_.v + i, cs, len2))
-            return &str->_.v[i];
+        if (!strncmp(cstr(str) + i, cs, len2))
+            return &cstr(str)[i];
     return NULL;
 }
 
@@ -228,7 +234,7 @@ int String_index(const String str, cstr_t cs)
     STRING_NOT_NULLPTR(str, "index");
     const char *ptr = str->find(str, cs);
     if (!ptr) return -1;
-    return ptr - str->_.v;
+    return ptr - cstr(str);
 }
 
 int String_rindex(const String str, cstr_t cs)
@@ -236,24 +242,24 @@ int String_rindex(const String str, cstr_t cs)
     STRING_NOT_NULLPTR(str, "rindex");
     const char *ptr = str->rfind(str, cs);
     if (!ptr) return -1;
-    return ptr - str->_.v;
+    return ptr - cstr(str);
 }
 
 bool String_equals(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "equals");
-    if (str->_.len != strlen(cs))
+    if (len(str) != strlen(cs))
         return false;
-    if (*str->_.v != *cs)
+    if (*cstr(str) != *cs)
         return false;
-    return !strcmp(str->_.v, cs);
+    return !strcmp(cstr(str), cs);
 }
 
 int String_compare(const String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "compare");
-    if (*str->_.v != *cs) return *str->_.v - *cs;
-    return strcmp(str->_.v, cs);
+    if (*cstr(str) != *cs) return *cstr(str) - *cs;
+    return strcmp(cstr(str), cs);
 }
 
 String String_substring(const String str, int from, int to)
@@ -261,7 +267,7 @@ String String_substring(const String str, int from, int to)
     STRING_NOT_NULLPTR(str, "substring");
     String res = String_new();
     const char *start = str->getref(str, from);
-    const int count = str->getref(str, to) - start;
+    const int count = to - from;
     res->nconcat(res, start, count);
     return res;
 }
@@ -287,7 +293,7 @@ Vector(String) String_split(const String str, cstr_t del)
     Vector(String) v = VectorFn(String, new)();
     // null ptr or empty string
     if (!del || !*del) {
-        for (int i = 0; i < str->_.len; ++i) {
+        for (int i = 0; i < len(str); ++i) {
             String s = str->substring(str, i, i +1);
             v->push(v, s);
         }
@@ -298,12 +304,12 @@ Vector(String) String_split(const String str, cstr_t del)
          *end = str->end(str),
          *pos = NULL;
     while (( pos = strstr(start, del) )) {
-        String s = str->substr(str, start - str->_.v, pos - start);
+        String s = str->substr(str, start - cstr(str), pos - start);
         v->push(v, s);
         start = pos + dellen;
     }
     if (start < end) {
-        String s = str->substr(str, start - str->_.v, end - start);
+        String s = str->substr(str, start - cstr(str), end - start);
         v->push(v, s);
     }
     return v;
@@ -336,7 +342,7 @@ String String_rtrim(String str)
     STRING_NOT_NULLPTR(str, "rtrim");
     STRING_RFOREACH(str, {
         if (*value == ' ' || *value == '\t' || *value == '\n' || *value == '\r' || *value == '\f') {
-            str->_.v[--str->_.len] = 0;
+            cstr(str)[--str->_.len] = 0;
         } else break;
     });
     return str;
@@ -359,7 +365,7 @@ String String_lowercase(String str)
 String String_replace(String str, cstr_t needle, cstr_t rep)
 {
     String res = String_new();
-    const char *tmp = str->_.v;
+    const char *tmp = cstr(str);
     size_t needle_len = strlen(needle);
     while (true) {
         const char *p = strstr(tmp, needle);
@@ -385,12 +391,12 @@ String String_replace(String str, cstr_t needle, cstr_t rep)
 String String_append(String str, char ch)
 {
     STRING_NOT_NULLPTR(str, "append");
-    if (str->_.len >= str->_.cap -1) {
-        str->_.cap = (int) (2 * str->_.cap) +1;
-        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap);
+    if (len(str) >= str->_.cap) {
+        str->_.cap = 2 * str->_.cap +1 +1;
+        str->_._ = str->_.v = realloc(cstr(str), sizeof(char) * str->_.cap);
     }
-    str->_.v[str->_.len] = ch;
-    str->_.v[++str->_.len] = 0;
+    cstr(str)[len(str)] = ch;
+    cstr(str)[++str->_.len] = 0;
     return str;
 }                             
 
@@ -398,32 +404,33 @@ String String_concat(String str, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "concat");
     const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap) {
-        str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap +1);
+    if (len(str) + len >= str->_.cap) {
+        str->_.cap = 2 * str->_.cap + len +1;
+        str->_._ = str->_.v = realloc(cstr(str), sizeof(char) * str->_.cap);
     }
-    memcpy(&str->_.v[str->_.len], cs, len);
-    str->_.v[++str->_.len] = 0;
+    memcpy(&cstr(str)[len(str)], cs, len);
+    cstr(str)[str->_.len += len] = 0;
     return str;
 }
 
 String String_nconcat(String str, cstr_t cs, size_t n)
 {
     STRING_NOT_NULLPTR(str, "nconcat");
-    const size_t len = strlen(cs);
-    if (str->_.len + len >= str->_.cap) {
-        str->_.cap = (int) (2 * str->_.cap) + len;
-        str->_._ = str->_.v = realloc(str->_.v, sizeof(char) * str->_.cap +1);
+    const size_t len_ = strlen(cs);
+    const size_t len = n < len_ ? n : len_;
+    if (len(str) + len >= str->_.cap) {
+        str->_.cap = 2 * str->_.cap + len +1;
+        str->_._ = str->_.v = realloc(cstr(str), sizeof(char) * str->_.cap);
     }
-    memcpy(&str->_.v[str->_.len], cs, n < len ? n : len);
-    str->_.v[str->_.len += len] = 0;
+    memcpy(&cstr(str)[len(str)], cs, len);
+    cstr(str)[str->_.len += len] = 0;
     return str;
 }
 
 String String_insert(String str, int index, cstr_t cs)
 {
     STRING_NOT_NULLPTR(str, "insert");
-    if (index >= (int) str->_.len) {
+    if (index >= (int) len(str)) {
         str->concat(str, cs);
         return str;
     }
@@ -438,14 +445,14 @@ String String_insert(String str, int index, cstr_t cs)
         q = str->rnext(str, q);
     }
     memcpy(ptr, cs, len);
-    str->_.v[str->_.len] = 0;
+    cstr(str)[len(str)] = 0;
     return str;
 }
 
 String String_erase(String str, int from, int count)
 {
     STRING_NOT_NULLPTR(str, "erase");
-    if (from >= (int) str->_.len) {
+    if (from >= (int) len(str)) {
         fprintf(stderr, "string: erase(): index out of bounds: %d\n", from);
         abort();
     }
@@ -461,7 +468,7 @@ String String_erase(String str, int from, int count)
         q = str->next(str, q);
     }
     str->_.len -= count;
-    str->_.v[str->_.len] = 0;
+    cstr(str)[len(str)] = 0;
     return str;
 }
 
@@ -469,7 +476,7 @@ String String_clone(const String str)
 {
     STRING_NOT_NULLPTR(str, "clone");
     String str2 = String_new();
-    str2->concat(str2, str->_.v);
+    str2->concat(str2, cstr(str));
     return str2;
 }
 

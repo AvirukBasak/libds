@@ -82,7 +82,7 @@ String String_from(cstr_t cs);
  * @return ptr If not null
  */
 #define STRING_NOT_NULLPTR(ptr, fn) ({                                \
-    void *tmp = ptr;                                                  \
+    void *tmp = ptr;                                            \
     if (!tmp) {                                                       \
         fprintf(stderr, "string: %s(): null pointer\n", fn);          \
         abort();                                                      \
