@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <string.h>
 
 #include "ctl/string.h"
 
@@ -20,6 +19,13 @@ void test_insert() {
     String str = String_from("Hello world!");
     str->insert(str, 5, ", oh accursed");
     assert( str->equals(str, "Hello, oh accursed world!") );
+    str->free(&str);
+}
+
+void test_erase() {
+    String str = String_from("Hello, oh accursed world!");
+    str->erase(str, 5, strlen(", oh accursed"));
+    assert( str->equals(str, "Hello world!") );
     str->free(&str);
 }
 
@@ -88,5 +94,6 @@ void teststr() {
     test_trim();
     test_replace();
     test_insert();
+    test_erase();
     printf("string: passed testcases\n");
 }
